@@ -1,9 +1,11 @@
 import {createStore} from 'vuex';
+import router from "@/router";
 
 export default createStore({
     state: {
         token: sessionStorage.getItem("token"),
-        menuList: JSON.parse(sessionStorage.getItem("menuList"))
+        menuList: JSON.parse(sessionStorage.getItem("menuList")),
+        userInfo: JSON.parse(sessionStorage.getItem("userInfo"))
     },
     getters: {
         GET_TOKEN: state => {
@@ -11,6 +13,9 @@ export default createStore({
         },
         GET_MENULIST: state => {
             return state.menuList;
+        },
+        GET_USERINFO: state => {
+            return state.userInfo;
         }
     },
     mutations: {
@@ -21,8 +26,18 @@ export default createStore({
         SET_MENULIST: (state, menuList) => {
             state.menuList = menuList;
             sessionStorage.setItem("menuList", JSON.stringify(menuList));
+        },
+        SET_USERINFO: (state, userInfo) => {
+            state.userInfo = userInfo;
+            sessionStorage.setItem("userInfo", JSON.stringify(userInfo));
         }
     },
-    actions: {},
+    actions: {
+        // 安全退出
+        logout() {
+            window.sessionStorage.clear();
+            router.replace("/login");
+        }
+    },
     modules: {}
 });

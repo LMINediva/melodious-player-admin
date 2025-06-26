@@ -84,9 +84,11 @@ const handleLogin = () => {
       if (data.code == 200) {
         const token = data.authorization;
         const menuList = data.menuList;
-        console.log("menuList = " + menuList);
+        const currentUser = data.currentUser;
+        console.log("currentUser = " + currentUser);
         store.commit('SET_MENULIST', menuList);
         store.commit('SET_TOKEN', token);
+        store.commit('SET_USERINFO', currentUser);
         router.replace("/");
       } else {
         ElMessage.error(data.msg);
