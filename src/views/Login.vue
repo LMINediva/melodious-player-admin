@@ -83,6 +83,9 @@ const handleLogin = () => {
       let data = result.data;
       if (data.code == 200) {
         const token = data.authorization;
+        const menuList = data.menuList;
+        console.log("menuList = " + menuList);
+        store.commit('SET_MENULIST', menuList);
         store.commit('SET_TOKEN', token);
         router.replace("/");
       } else {
