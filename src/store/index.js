@@ -6,7 +6,14 @@ export default createStore({
         token: sessionStorage.getItem("token"),
         menuList: JSON.parse(sessionStorage.getItem("menuList")),
         userInfo: JSON.parse(sessionStorage.getItem("userInfo")),
-        hasRoutes: false
+        hasRoutes: false,
+        editableTabsValue: '/index',
+        editableTabs: [
+            {
+                title: '首页',
+                name: '/index'
+            }
+        ]
     },
     getters: {
         GET_TOKEN: state => {
@@ -34,6 +41,24 @@ export default createStore({
         },
         SET_ROUTES_STATE: (state, hasRoutes) => {
             state.hasRoutes = hasRoutes;
+        },
+        ADD_TABS: (state, tab) => {
+            if (state.editableTabs.findIndex(e => e.name === tab.path) === -1) {
+                state.editableTabs.push({
+                    title: tab.name,
+                    name: tab.path
+                });
+            }
+            state.editableTabsValue = tab.path;
+        },
+        RESET_TABS: (state) => {
+            state.editableTabsValue = '/index';
+            state.editableTabs = [
+                {
+                    title: '首页',
+                    name: '/index'
+                }
+            ];
         }
     },
     actions: {

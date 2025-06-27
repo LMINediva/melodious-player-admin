@@ -19,7 +19,7 @@
         </el-icon>
         <span>{{ menu.name }}</span>
       </template>
-      <el-menu-item :index="item.path" v-for="item in menu.children">
+      <el-menu-item :index="item.path" v-for="item in menu.children" @click="openTab(item)">
         <el-icon>
           <svg-icon :icon="item.icon"/>
         </el-icon>
@@ -46,6 +46,9 @@ import {ref} from "vue";
 import store from "@/store";
 
 const menuList = ref(store.getters.GET_MENULIST);
+const openTab = (item) => {
+  store.commit('ADD_TABS', item);
+};
 </script>
 
 <style lang="scss" scoped>

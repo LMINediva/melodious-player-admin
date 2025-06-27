@@ -27,6 +27,8 @@ const squareUrl = ref(getServerUrl() + 'image/userAvatar/' + currentUser.value.a
 const logout = async () => {
   let result = await requestUtil.get("/logout");
   if (result.data.code === 200) {
+    store.commit('SET_ROUTES_STATE', false);
+    store.commit('RESET_TABS');
     store.dispatch('logout');
   }
 };
