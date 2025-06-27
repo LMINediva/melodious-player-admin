@@ -5,7 +5,8 @@ export default createStore({
     state: {
         token: sessionStorage.getItem("token"),
         menuList: JSON.parse(sessionStorage.getItem("menuList")),
-        userInfo: JSON.parse(sessionStorage.getItem("userInfo"))
+        userInfo: JSON.parse(sessionStorage.getItem("userInfo")),
+        hasRoutes: false
     },
     getters: {
         GET_TOKEN: state => {
@@ -30,6 +31,9 @@ export default createStore({
         SET_USERINFO: (state, userInfo) => {
             state.userInfo = userInfo;
             sessionStorage.setItem("userInfo", JSON.stringify(userInfo));
+        },
+        SET_ROUTES_STATE: (state, hasRoutes) => {
+            state.hasRoutes = hasRoutes;
         }
     },
     actions: {

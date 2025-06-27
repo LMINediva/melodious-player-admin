@@ -10,6 +10,7 @@
         </el-header>
         <el-main>
           <Tabs/>
+          <router-view/>
         </el-main>
         <el-footer>
           <Footer/>

@@ -17,7 +17,6 @@
         :label="item.title"
         :name="item.name"
     >
-      {{ item.content }}
     </el-tab-pane>
   </el-tabs>
 </template>
