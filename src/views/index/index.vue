@@ -1,5 +1,7 @@
 <template>
-  首页
+  <div className="home">
+    欢迎使用，悦听影音APP权限管理系统 ！
+  </div>
 </template>
 
 <script>
@@ -11,5 +13,9 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
-
+.home {
+  padding: 40px;
+  font-size: 30px;
+  font-weight: bold;
+}
 </style>
