@@ -5,7 +5,7 @@
       class="el-menu-vertical-demo"
       text-color="#fff"
       router
-      :default-active="'/index'">
+      :default-active="activeIndex">
     <el-menu-item index="/index">
       <el-icon>
         <home-filled/>
@@ -42,13 +42,21 @@ import {
   SwitchButton,
   Promotion
 } from '@element-plus/icons-vue';
-import {ref} from "vue";
-import store from "@/store";
+import {ref, watch} from 'vue';
+import store from '@/store';
 
 const menuList = ref(store.getters.GET_MENULIST);
 const openTab = (item) => {
   store.commit('ADD_TABS', item);
 };
+
+const activeIndex = ref("/index");
+
+watch(store.state, () => {
+  console.log("editableTabsValue=" + store.state.editableTabsValue);
+  activeIndex.value = store.state.editableTabsValue;
+}, {deep: true, immediate: true});
+
 </script>
 
 <style lang="scss" scoped>
