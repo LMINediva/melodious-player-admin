@@ -10,7 +10,7 @@
           </template>
           <div>
             <div class="text-center">
-              修改头像
+              <avatar/>
             </div>
             <ul class="list-group list-group-striped">
               <li class="list-group-item">
@@ -46,10 +46,10 @@
           </template>
           <el-tabs v-model="activeTab">
             <el-tab-pane label="基本资料" name="userinfo">
-              基本资料
+              <userInfo/>
             </el-tab-pane>
             <el-tab-pane label="修改密码" name="resetPwd">
-              修改密码
+              <resetPwd/>
             </el-tab-pane>
           </el-tabs>
         </el-card>
@@ -59,6 +59,9 @@
 </template>
 
 <script setup>
+import avatar from './avatar';
+import userInfo from './userInfo';
+import resetPwd from './resetPwd';
 import {ref} from 'vue';
 import store from '@/store';
 import {formatDate} from '@/util/formatDate.js';
