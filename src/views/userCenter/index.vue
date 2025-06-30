@@ -10,7 +10,7 @@
           </template>
           <div>
             <div class="text-center">
-              <avatar/>
+              <avatar :user="currentUser"/>
             </div>
             <ul class="list-group list-group-striped">
               <li class="list-group-item">
