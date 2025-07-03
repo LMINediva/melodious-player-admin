@@ -5,6 +5,7 @@
         <el-input placeholder="请输入用户名..." v-model="queryForm.query" clearable></el-input>
       </el-col>
       <el-button type="primary" :icon="Search" @click="initUserList">搜索</el-button>
+      <el-button type="success" :icon="DocumentAdd" @click="handleDialogValue()">新增</el-button>
     </el-row>
     <el-table :data="tableData" stripe style="width: 100%">
       <el-table-column type="selection" width="55"/>
@@ -35,6 +36,8 @@
           <el-button type="primary" :icon="Tools" @click="handleRoleDialogValue(scope.row.id,scope.row.sysRoleList)">
             分配角色
           </el-button>
+          <el-button v-if="scope.row.username!='java1234'" type="primary" :icon="Edit"
+                     @click="handleDialogValue(scope.row.id)"/>
         </template>
       </el-table-column>
     </el-table>
@@ -48,12 +51,15 @@
         @current-change="handleCurrentChange"
     />
   </div>
+  <Dialog v-model="dialogVisible" :dialogVisible="dialogVisible" :id="id" :dialogTitle="dialogTitle"
+          @initUserList="initUserList"/>
 </template>
 
 <script setup>
 import {ref} from 'vue';
 import requestUtil, {getServerUrl} from '@/util/request';
 import {Search, Delete, DocumentAdd, Edit, Tools, RefreshRight} from '@element-plus/icons-vue';
+import Dialog from './components/dialog';
 
 const tableData = ref([]);
 const total = ref(0);
@@ -62,6 +68,10 @@ const queryForm = ref({
   pageNum: 1,
   pageSize: 10
 });
+
+const dialogVisible = ref(false);
+const dialogTitle = ref("");
+const id = ref(-1);
 
 const initUserList = async () => {
   const res = await requestUtil.post("sys/user/list", queryForm.value);
@@ -80,6 +90,17 @@ const handleSizeChange = (pageSize) => {
 const handleCurrentChange = (pageNum) => {
   queryForm.value.pageNum = pageNum;
   initUserList();
+};
+
+const handleDialogValue = (userId) => {
+  if (userId) {
+    id.value = userId;
+    dialogTitle.value = "用户修改";
+  } else {
+    id.value = -1;
+    dialogTitle.value = "用户添加";
+  }
+  dialogVisible.value = true;
 };
 </script>
 
