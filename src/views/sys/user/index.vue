@@ -70,6 +70,8 @@
   </div>
   <Dialog v-model="dialogVisible" :dialogVisible="dialogVisible" :id="id" :dialogTitle="dialogTitle"
           @initUserList="initUserList"/>
+  <RoleDialog v-model="roleDialogVisible" :sysRoleList="sysRoleList" :roleDialogVisible="roleDialogVisible" :id="id"
+              @initUserList="initUserList"/>
 </template>
 
 <script setup>
@@ -78,6 +80,7 @@ import requestUtil, {getServerUrl} from '@/util/request';
 import {Search, Delete, DocumentAdd, Edit, Tools, RefreshRight} from '@element-plus/icons-vue';
 import Dialog from './components/dialog';
 import {ElMessage, ElMessageBox} from 'element-plus';
+import RoleDialog from './components/roleDialog';
 
 const tableData = ref([]);
 const total = ref(0);
@@ -92,12 +95,21 @@ const dialogTitle = ref("");
 const id = ref(-1);
 const delBtnStatus = ref(true);
 const multipleSelection = ref([]);
+const sysRoleList = ref([]);
+const roleDialogVisible = ref(false);
 
 const handleSelectionChange = (selection) => {
   console.log("勾选了");
   console.log(selection);
   multipleSelection.value = selection;
   delBtnStatus.value = selection.length === 0;
+};
+
+const handleRoleDialogValue = (userId, roleList) => {
+  console.log("userId=" + userId);
+  id.value = userId;
+  sysRoleList.value = roleList;
+  roleDialogVisible.value = true;
 };
 
 const initUserList = async () => {
