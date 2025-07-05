@@ -49,6 +49,12 @@
               <el-button type="danger" :icon="Delete"/>
             </template>
           </el-popconfirm>
+          <el-popconfirm v-if="scope.row.username !== 'java1234'" title="您确定要对这个用户重置密码吗？"
+                         @confirm="handleResetPassword(scope.row.id)">
+            <template #reference>
+              <el-button type="warning" :icon="RefreshRight">重置密码</el-button>
+            </template>
+          </el-popconfirm>
         </template>
       </el-table-column>
     </el-table>
@@ -145,6 +151,38 @@ const handleDelete = async (id) => {
       type: 'error',
       message: res.data.msg,
     });
+  }
+};
+
+const handleResetPassword = async (id) => {
+  const res = await requestUtil.get("sys/user/resetPassword/" + id);
+  if (res.data.code === 200) {
+    ElMessage({
+      type: 'success',
+      message: '执行成功!'
+    });
+    initUserList();
+  } else {
+    ElMessage({
+      type: 'error',
+      message: res.data.msg,
+    });
+  }
+};
+
+const statusChangeHandle = async (row) => {
+  let res = await requestUtil.get("sys/user/updateStatus/" + row.id + "/status/" + row.status);
+  if (res.data.code === 200) {
+    ElMessage({
+      type: 'success',
+      message: '执行成功!'
+    });
+  } else {
+    ElMessage({
+      type: 'error',
+      message: res.data.msg,
+    });
+    initUserList();
   }
 };
 </script>
