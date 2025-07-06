@@ -9,27 +9,11 @@
         :model="form"
         :rules="rules"
         label-width="100px">
-      <el-form-item label="用户名" prop="username">
-        <el-input v-model="form.username" :disabled="form.id === -1 ? false : 'disabled'"/>
-        <el-alert
-            v-if="form.id === -1"
-            title="默认初始密码：123456"
-            :closable="false"
-            style="line-height: 10px;"
-            type="success">
-        </el-alert>
+      <el-form-item label="角色名称" prop="name">
+        <el-input v-model="form.name"/>
       </el-form-item>
-      <el-form-item label="手机号" prop="phonenumber">
-        <el-input v-model="form.phonenumber"/>
-      </el-form-item>
-      <el-form-item label="邮箱" prop="email">
-        <el-input v-model="form.email"/>
-      </el-form-item>
-      <el-form-item label="状态" prop="status">
-        <el-radio-group v-model="form.status">
-          <el-radio :value="'0'">正常</el-radio>
-          <el-radio :value="'1'">禁用</el-radio>
-        </el-radio-group>
+      <el-form-item label="权限字符" prop="code">
+        <el-input v-model="form.code"/>
       </el-form-item>
       <el-form-item label="备注" prop="remark">
         <el-input v-model="form.remark" type="textarea" :rows="4"/>
@@ -71,49 +55,25 @@ const props = defineProps(
 
 const form = ref({
   id: -1,
-  username: "",
-  password: "123456",
-  status: "0",
-  phonenumber: "",
-  email: "",
+  name: "",
+  code: "",
   remark: ""
 });
 
-const checkUsername = async (rule, value, callback) => {
-  if (form.value.id === -1) {
-    const res = await requestUtil.post("sys/user/checkUserName", {username: form.value.username});
-    if (res.data.code === 500) {
-      callback(new Error("用户名已存在！"));
-    } else {
-      callback();
-    }
-  } else {
-    callback();
-  }
-};
-
 const rules = ref({
-  username: [
-    {required: true, message: '请输入用户名'},
-    {required: true, validator: checkUsername, trigger: "blur"}
+  name: [
+    {required: true, message: '请输入角色名称'}
   ],
-  email: [{required: true, message: "邮箱地址不能为空", trigger: "blur"}, {
-    type: "email",
-    message: "请输入正确的邮箱地址",
-    trigger: ["blur", "change"]
-  }],
-  phonenumber: [{
-    required: true,
-    message: "手机号码不能为空",
-    trigger: "blur"
-  }, {pattern: /^1[3|4|5|6|7|8|9][0-9]\d{8}$/, message: "请输入正确的手机号码", trigger: "blur"}],
+  code: [
+    {required: true, message: '请输入权限字符'}
+  ]
 });
 
 const formRef = ref(null);
 
 const initFormData = async (id) => {
-  const res = await requestUtil.get("sys/user/" + id);
-  form.value = res.data.sysUser;
+  const res = await requestUtil.get("sys/role/" + id);
+  form.value = res.data.sysRole;
 };
 
 watch(
@@ -126,18 +86,15 @@ watch(
       } else {
         form.value = {
           id: -1,
-          username: "",
-          password: "123456",
-          status: "0",
-          phonenumber: "",
-          email: "",
+          name: "",
+          code: "",
           remark: ""
         };
       }
     }
 );
 
-const emits = defineEmits(['update:modelValue', 'initUserList']);
+const emits = defineEmits(['update:modelValue', 'initRoleList']);
 
 const handleClose = () => {
   emits('update:modelValue', false)
@@ -149,12 +106,12 @@ const handleConfirm = () => {
       if (form.value.id === -1) {
         form.value.id = null;
       }
-      let result = await requestUtil.post("sys/user/save", form.value);
+      let result = await requestUtil.post("sys/role/save", form.value);
       let data = result.data;
       if (data.code === 200) {
         ElMessage.success("执行成功！");
         formRef.value.resetFields();
-        emits("initUserList");
+        emits("initRoleList");
         handleClose();
       } else {
         ElMessage.error(data.msg);
