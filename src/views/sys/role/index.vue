@@ -20,7 +20,7 @@
       <el-table-column prop="remark" label="备注"/>
       <el-table-column prop="action" label="操作" width="400" fixed="right" align="center">
         <template v-slot="scope">
-          <el-button type="primary" :icon="Tools" @click="handleRoleDialogValue(scope.row.id,scope.row.sysRoleList)">
+          <el-button type="primary" :icon="Tools" @click="handleMenuDialogValue(scope.row.id)">
             分配权限
           </el-button>
           <el-button v-if="scope.row.code !== 'admin'" type="primary" :icon="Edit"
@@ -46,7 +46,7 @@
   </div>
   <Dialog v-model="dialogVisible" :dialogVisible="dialogVisible" :id="id" :dialogTitle="dialogTitle"
           @initRoleList="initRoleList"/>
-  <RoleDialog v-model="roleDialogVisible" :sysRoleList="sysRoleList" :roleDialogVisible="roleDialogVisible" :id="id"
+  <MenuDialog v-model="menuDialogVisible" :menuDialogVisible="menuDialogVisible" :id="id"
               @initRoleList="initRoleList"/>
 </template>
 
@@ -56,7 +56,7 @@ import requestUtil, {getServerUrl} from '@/util/request';
 import {Search, Delete, DocumentAdd, Edit, Tools, RefreshRight} from '@element-plus/icons-vue';
 import Dialog from './components/dialog';
 import {ElMessage, ElMessageBox} from 'element-plus';
-import RoleDialog from './components/roleDialog';
+import MenuDialog from './components/menuDialog';
 
 const tableData = ref([]);
 const total = ref(0);
@@ -72,7 +72,7 @@ const id = ref(-1);
 const delBtnStatus = ref(true);
 const multipleSelection = ref([]);
 const sysRoleList = ref([]);
-const roleDialogVisible = ref(false);
+const menuDialogVisible = ref(false);
 
 const handleSelectionChange = (selection) => {
   console.log("勾选了");
@@ -81,11 +81,10 @@ const handleSelectionChange = (selection) => {
   delBtnStatus.value = selection.length === 0;
 };
 
-const handleRoleDialogValue = (roleId, roleList) => {
+const handleMenuDialogValue = (roleId) => {
   console.log("roleId=" + roleId);
   id.value = roleId;
-  sysRoleList.value = roleList;
-  roleDialogVisible.value = true;
+  menuDialogVisible.value = true;
 };
 
 const initRoleList = async () => {
