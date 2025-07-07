@@ -152,7 +152,7 @@ const handleResetPassword = async (id) => {
   } else {
     ElMessage({
       type: 'error',
-      message: res.data.msg,
+      message: res.data.msg
     });
   }
 };

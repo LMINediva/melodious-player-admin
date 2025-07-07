@@ -66,6 +66,8 @@ const initFormData = async (id) => {
   const res = await requestUtil.get("sys/menu/treeList");
   treeData.value = res.data.treeMenu;
   form.value.id = id;
+  const res2 = await requestUtil.get("sys/role/menus/" + id);
+  treeRef.value.setCheckedKeys(res2.data.menuIdList);
 };
 
 watch(
@@ -88,17 +90,18 @@ const handleClose = () => {
 const handleConfirm = () => {
   formRef.value.validate(async (valid) => {
     if (valid) {
-      let result = await requestUtil.post("sys/user/grantRole/" + form.value.id, form.value.checkedRoles);
+      var menuIds = treeRef.value.getCheckedKeys();
+      let result = await requestUtil.post("sys/role/updateMenus/" + form.value.id, menuIds);
       let data = result.data;
       if (data.code === 200) {
         ElMessage.success("执行成功！");
-        emits("initUserList");
+        emits("initRoleList");
         handleClose();
       } else {
         ElMessage.error(data.msg);
       }
     } else {
-      console.log("fail")
+      console.log("fail");
     }
   });
 };
