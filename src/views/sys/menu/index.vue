@@ -78,7 +78,7 @@ const handleDialogValue = (menuId) => {
 };
 
 const handleDelete = async (id) => {
-  const res = await requestUtil.post("sys/menu/delete", ids);
+  const res = await requestUtil.get("sys/menu/delete/" + id);
   if (res.data.code === 200) {
     ElMessage({
       type: 'success',
