@@ -42,7 +42,8 @@
       </el-table-column>
     </el-table>
   </div>
-  <Dialog v-model="dialogVisible" :dialogVisible="dialogVisible" :id="id" :dialogTitle="dialogTitle"
+  <Dialog v-model="dialogVisible" :tableData="tableData" :dialogVisible="dialogVisible" :id="id"
+          :dialogTitle="dialogTitle"
           @initMenuList="initMenuList"/>
 </template>
 
@@ -68,23 +69,15 @@ initMenuList();
 const handleDialogValue = (menuId) => {
   if (menuId) {
     id.value = menuId;
-    dialogTitle.value = "用户修改";
+    dialogTitle.value = "菜单修改";
   } else {
     id.value = -1;
-    dialogTitle.value = "用户添加";
+    dialogTitle.value = "菜单添加";
   }
   dialogVisible.value = true;
 };
 
 const handleDelete = async (id) => {
-  var ids = [];
-  if (id) {
-    ids.push(id);
-  } else {
-    multipleSelection.value.forEach(row => {
-      ids.push(row.id);
-    });
-  }
   const res = await requestUtil.post("sys/menu/delete", ids);
   if (res.data.code === 200) {
     ElMessage({
