@@ -60,11 +60,10 @@ const handleAvatarSuccess = (res) => {
 };
 
 const beforeAvatarUpload = (file) => {
-  const isJPG = file.type === 'image/jpeg';
+  const isJPG = file.type === 'image/jpeg' || file.type === 'image/jpg' || file.type === 'image/png';
   const isLt2M = file.size / 1024 / 1024 < 2;
-
   if (!isJPG) {
-    ElMessage.error('图片必须是jpg格式');
+    ElMessage.error('图片只能是jpeg、jpg和png格式');
   }
   if (!isLt2M) {
     ElMessage.error('图片大小不能超过2M!');
