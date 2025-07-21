@@ -30,18 +30,34 @@
                alt="缩略图"/>
         </template>
       </el-table-column>
-      <el-table-column prop="url" label="音乐链接" width="120" align="center"/>
-      <el-table-column prop="hdUrl" label="高品质音乐链接" width="120" align="center"/>
-      <el-table-column prop="uhdUrl" label="超高品质音乐链接" width="120" align="center"/>
+      <el-table-column prop="url" label="音乐" width="350" align="center">
+        <template v-slot="scope">
+          <audio ref="audioPlayer" controls>
+            <source :src="getServerUrl() + 'audio/music/' + scope.row.url" type="audio/mpeg">
+            您的浏览器不支持audio元素。
+          </audio>
+        </template>
+      </el-table-column>
+      <el-table-column prop="hdUrl" label="高品质音乐" width="350" align="center">
+        <template v-slot="scope">
+          <audio ref="audioPlayer" controls>
+            <source :src="getServerUrl() + 'audio/music/' + scope.row.hdUrl" type="audio/mpeg">
+            您的浏览器不支持audio元素。
+          </audio>
+        </template>
+      </el-table-column>
+      <el-table-column prop="uhdUrl" label="超高品质音乐" width="350" align="center">
+        <template v-slot="scope">
+          <audio ref="audioPlayer" controls>
+            <source :src="getServerUrl() + 'audio/music/' + scope.row.uhdUrl" type="audio/mpeg">
+            您的浏览器不支持audio元素。
+          </audio>
+        </template>
+      </el-table-column>
       <el-table-column prop="musicSize" label="音乐大小（MB）" width="120" align="center"/>
       <el-table-column prop="hdMusicSize" label="高品质音乐大小（MB）" width="120" align="center"/>
       <el-table-column prop="uhdMusicSize" label="超高品质音乐大小（MB）" width="120" align="center"/>
-      <el-table-column prop="status" label="状态？" width="200" align="center">
-        <template v-slot="{row}">
-          <el-switch v-model="row.status" @change="statusChangeHandle(row)" active-text="正常"
-                     inactive-text="禁用" active-value="0" inactive-value="1"></el-switch>
-        </template>
-      </el-table-column>
+      <el-table-column prop="status" label="状态" width="120" align="center" :formatter="stateFormat"/>
       <el-table-column prop="action" label="操作" width="400" fixed="right" align="center">
         <template v-slot="scope">
           <el-button type="primary" :icon="Edit" @click="handleDialogValue(scope.row.id)"/>
@@ -149,19 +165,11 @@ const handleDelete = async (id) => {
   }
 };
 
-const statusChangeHandle = async (row) => {
-  let res = await requestUtil.get("data/music/updateStatus/" + row.id + "/status/" + row.status);
-  if (res.data.code === 200) {
-    ElMessage({
-      type: 'success',
-      message: '执行成功!'
-    });
+const stateFormat = (row, column) => {
+  if (row.status === 0) {
+    return '正常';
   } else {
-    ElMessage({
-      type: 'error',
-      message: res.data.msg,
-    });
-    initMusicList();
+    return '禁用';
   }
 };
 </script>

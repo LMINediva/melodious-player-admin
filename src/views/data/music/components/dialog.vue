@@ -51,10 +51,28 @@
         </el-upload>
         <el-button @click="handleConfirmUploadThumbnailPicture">确认更换</el-button>
       </el-form-item>
+      <el-form-item label="音乐" prop="url">
+        <el-upload
+            :headers="headers"
+            class="picture-uploader"
+            :action="getServerUrl() + 'data/music/uploadAudio'"
+            :show-file-list="false"
+            :on-success="handleAudioSuccess"
+            :before-upload="beforeAudioUpload">
+          <audio v-if="url" ref="audioPlayer" controls class="picture">
+            <source :src="url" type="audio/mpeg">
+            您的浏览器不支持audio元素。
+          </audio>
+          <el-icon v-else class="picture-uploader-icon">
+            <Plus/>
+          </el-icon>
+        </el-upload>
+        <el-button @click="handleConfirmUploadAudio">确认更换</el-button>
+      </el-form-item>
       <el-form-item label="状态" prop="status">
         <el-radio-group v-model="form.status">
-          <el-radio :value="'0'">正常</el-radio>
-          <el-radio :value="'1'">禁用</el-radio>
+          <el-radio :value="0">正常</el-radio>
+          <el-radio :value="1">禁用</el-radio>
         </el-radio-group>
       </el-form-item>
     </el-form>
@@ -101,7 +119,14 @@ const form = ref({
   artistName: '',
   description: '',
   posterPic: '',
-  thumbnailPic: ''
+  thumbnailPic: '',
+  url: '',
+  hdUrl: '',
+  uhdUrl: '',
+  musicSize: 0,
+  hdMusicSize: 0,
+  uhdMusicSize: 0,
+  status: 0
 });
 
 const headers = ref({
@@ -109,10 +134,9 @@ const headers = ref({
 });
 
 const posterPicUrl = ref("");
-posterPicUrl.value = getServerUrl() + 'image/musicPicture/' + form.value.posterPic;
-
 const thumbnailPicUrl = ref("");
-thumbnailPicUrl.value = getServerUrl() + 'image/musicPicture/' + form.value.thumbnailPic;
+const url = ref("");
+const audioName = ref("");
 
 const handlePosterPicSuccess = (res) => {
   posterPicUrl.value = getServerUrl() + res.data.src;
@@ -121,7 +145,13 @@ const handlePosterPicSuccess = (res) => {
 
 const handleThumbnailPicSuccess = (res) => {
   thumbnailPicUrl.value = getServerUrl() + res.data.src;
-  form.value.posterPic = res.data.title;
+  form.value.thumbnailPic = res.data.title;
+};
+
+const handleAudioSuccess = (res) => {
+  url.value = getServerUrl() + res.data.src;
+  audioName.value = res.data.title;
+  form.value.url = res.data.title;
 };
 
 const beforePictureUpload = (file) => {
@@ -136,11 +166,29 @@ const beforePictureUpload = (file) => {
   return isJPG && isLt2M;
 }
 
-const checkUsername = async (rule, value, callback) => {
+const beforeAudioUpload = (file) => {
+  const isMP3 = file.type === 'audio/mpeg' || file.type === 'audio/wav';
+  const fileSize = Number((file.size / 1024 / 1024).toFixed(1));
+  const isLt50M = fileSize < 50;
+  if (!isMP3) {
+    ElMessage.error('音频只能是mp3和wav格式');
+  }
+  if (!isLt50M) {
+    ElMessage.error('音频大小不能超过50M！');
+  }
+  if (isMP3 && isLt50M) {
+    form.value.musicSize = fileSize;
+    form.value.hdMusicSize = fileSize;
+    form.value.uhdMusicSize = fileSize;
+  }
+  return isMP3 && isLt50M;
+}
+
+const checkTitle = async (rule, value, callback) => {
   if (form.value.id === -1) {
-    const res = await requestUtil.post("sys/user/checkUserName", {username: form.value.username});
+    const res = await requestUtil.post("data/music/checkTitle", {username: form.value.username});
     if (res.data.code === 500) {
-      callback(new Error("用户名已存在！"));
+      callback(new Error("音乐名已存在！"));
     } else {
       callback();
     }
@@ -150,20 +198,13 @@ const checkUsername = async (rule, value, callback) => {
 };
 
 const rules = ref({
-  username: [
-    {required: true, message: '请输入用户名'},
-    {required: true, validator: checkUsername, trigger: "blur"}
+  type: [{required: true, message: "类型不能为空", trigger: "blur"}],
+  title: [
+    {required: true, message: '请输入音乐名'},
+    {required: true, validator: checkTitle, trigger: "blur"}
   ],
-  email: [{required: true, message: "邮箱地址不能为空", trigger: "blur"}, {
-    type: "email",
-    message: "请输入正确的邮箱地址",
-    trigger: ["blur", "change"]
-  }],
-  phonenumber: [{
-    required: true,
-    message: "手机号码不能为空",
-    trigger: "blur"
-  }, {pattern: /^1[3|4|5|6|7|8|9][0-9]\d{8}$/, message: "请输入正确的手机号码", trigger: "blur"}],
+  artistName: [{required: true, message: "歌手姓名不能为空", trigger: "blur"}],
+  description: [{required: true, message: "描述不能为空", trigger: "blur"}]
 });
 
 const formRef = ref(null);
@@ -171,6 +212,9 @@ const formRef = ref(null);
 const initFormData = async (id) => {
   const res = await requestUtil.get("data/music/" + id);
   form.value = res.data.homeItem;
+  posterPicUrl.value = getServerUrl() + 'image/musicPicture/' + form.value.posterPic;
+  thumbnailPicUrl.value = getServerUrl() + 'image/musicPicture/' + form.value.thumbnailPic;
+  url.value = getServerUrl() + 'audio/music/' + form.value.url;
 };
 
 watch(
@@ -183,12 +227,19 @@ watch(
       } else {
         form.value = {
           id: -1,
-          username: "",
-          password: "123456",
-          status: "0",
-          phonenumber: "",
-          email: "",
-          remark: ""
+          type: '',
+          title: '',
+          artistName: '',
+          description: '',
+          posterPic: '',
+          thumbnailPic: '',
+          url: '',
+          hdUrl: '',
+          uhdUrl: '',
+          musicSize: 0,
+          hdMusicSize: 0,
+          uhdMusicSize: 0,
+          status: 0
         };
       }
     }
@@ -222,13 +273,26 @@ const handleConfirmUploadThumbnailPicture = async () => {
   }
 }
 
+const handleConfirmUploadAudio = async () => {
+  let result = await requestUtil.post("data/music/updateAudio", form.value);
+  let data = result.data;
+  if (data.code === 200) {
+    ElMessage.success("执行成功！");
+    store.commit("SET_USERINFO", form.value);
+  } else {
+    ElMessage.error(data.msg);
+  }
+}
+
 const handleConfirm = () => {
   formRef.value.validate(async (valid) => {
     if (valid) {
       if (form.value.id === -1) {
         form.value.id = null;
+        form.value.hdUrl = audioName;
+        form.value.uhdUrl = audioName;
       }
-      let result = await requestUtil.post("sys/user/save", form.value);
+      let result = await requestUtil.post("data/music/save", form.value);
       let data = result.data;
       if (data.code === 200) {
         ElMessage.success("执行成功！");
