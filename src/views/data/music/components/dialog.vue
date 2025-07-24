@@ -248,7 +248,7 @@ watch(
 const emits = defineEmits(['update:modelValue', 'initUserList']);
 
 const handleClose = () => {
-  emits('update:modelValue', false)
+  emits('update:modelValue', false);
 };
 
 const handleConfirmUploadPosterPicture = async () => {
@@ -305,7 +305,7 @@ const handleConfirm = () => {
     } else {
       console.log("fail");
     }
-  })
+  });
 };
 </script>
 

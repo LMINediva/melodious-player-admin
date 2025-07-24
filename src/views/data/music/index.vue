@@ -30,6 +30,14 @@
                alt="缩略图"/>
         </template>
       </el-table-column>
+      <el-table-column label="歌词" width="100" align="center">
+        <template v-slot="scope">
+          <el-text v-if="scope.row.lyric" class="mx-1" type="primary"
+                   @click="handleLyricDialogValue(scope.row.id, scope.row.title, scope.row.lyric)">
+            {{ scope.row.lyric }}
+          </el-text>
+        </template>
+      </el-table-column>
       <el-table-column prop="url" label="音乐" width="350" align="center">
         <template v-slot="scope">
           <audio ref="audioPlayer" controls>
@@ -81,6 +89,8 @@
   </div>
   <Dialog v-model="dialogVisible" :dialogVisible="dialogVisible" :id="id" :dialogTitle="dialogTitle"
           @initMusicList="initMusicList"/>
+  <LyricDialog v-model="lyricDialogVisible" :dialogVisible="lyricDialogVisible"
+               :id="id" :dialogTitle="lyricDialogTitle"/>
 </template>
 
 <script setup>
@@ -89,6 +99,7 @@ import requestUtil, {getServerUrl} from '@/util/request';
 import {Search, Delete, DocumentAdd, Edit, Tools, RefreshRight} from '@element-plus/icons-vue';
 import Dialog from './components/dialog';
 import {ElMessage, ElMessageBox} from 'element-plus';
+import LyricDialog from './components/lyricDialog.vue';
 
 const tableData = ref([]);
 const total = ref(0);
@@ -99,7 +110,9 @@ const queryForm = ref({
 });
 
 const dialogVisible = ref(false);
+const lyricDialogVisible = ref(false);
 const dialogTitle = ref("");
+const lyricDialogTitle = ref("");
 const id = ref(-1);
 const delBtnStatus = ref(true);
 const multipleSelection = ref([]);
@@ -139,6 +152,17 @@ const handleDialogValue = (musicId) => {
     dialogTitle.value = "在线音乐添加";
   }
   dialogVisible.value = true;
+};
+
+const handleLyricDialogValue = (musicId, musicName, lyric) => {
+  id.value = musicId;
+  console.log("musicId = " + id.value);
+  if (lyric) {
+    lyricDialogTitle.value = musicName + " : " + lyric;
+  } else {
+    lyricDialogTitle.value = "没找到歌词";
+  }
+  lyricDialogVisible.value = true;
 };
 
 const handleDelete = async (id) => {
