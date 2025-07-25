@@ -19,7 +19,7 @@
         <el-input v-model="form.artistName"/>
       </el-form-item>
       <el-form-item label="描述" prop="description">
-        <el-mention v-model="form.description" type="textarea"/>
+        <el-input v-model="form.description"/>
       </el-form-item>
       <el-form-item label="海报图片" prop="posterPic">
         <el-upload
@@ -50,23 +50,6 @@
           </el-icon>
         </el-upload>
         <el-button @click="handleConfirmUploadThumbnailPicture">确认更换</el-button>
-      </el-form-item>
-      <el-form-item label="歌词" prop="lyric">
-        <el-upload
-            :headers="headers"
-            class="picture-uploader"
-            :action="getServerUrl() + 'data/music/uploadLyric'"
-            :show-file-list="false"
-            :on-success="handleLyricSuccess"
-            :before-upload="beforeLyricUpload">
-          <el-text v-if="lyricUrl" class="mx-1">
-            {{ form.lyric }}
-          </el-text>
-          <el-icon v-else class="picture-uploader-icon">
-            <Plus/>
-          </el-icon>
-        </el-upload>
-        <el-button @click="handleConfirmUploadLyric">确认更换</el-button>
       </el-form-item>
       <el-form-item label="音乐" prop="url">
         <el-upload
@@ -137,7 +120,6 @@ const form = ref({
   description: '',
   posterPic: '',
   thumbnailPic: '',
-  lyric: '',
   url: '',
   hdUrl: '',
   uhdUrl: '',
@@ -155,7 +137,6 @@ const posterPicUrl = ref("");
 const thumbnailPicUrl = ref("");
 const url = ref("");
 const audioName = ref("");
-const lyricUrl = ref("");
 
 const handlePosterPicSuccess = (res) => {
   posterPicUrl.value = getServerUrl() + res.data.src;
@@ -173,11 +154,6 @@ const handleAudioSuccess = (res) => {
   form.value.url = res.data.title;
 };
 
-const handleLyricSuccess = (res) => {
-  lyricUrl.value = getServerUrl() + res.data.src;
-  form.value.lyric = res.data.title;
-};
-
 const beforePictureUpload = (file) => {
   const isJPG = file.type === 'image/jpeg' || file.type === 'image/jpg' || file.type === 'image/png';
   const isLt2M = file.size / 1024 / 1024 < 2;
@@ -188,18 +164,6 @@ const beforePictureUpload = (file) => {
     ElMessage.error('图片大小不能超过2M!');
   }
   return isJPG && isLt2M;
-}
-
-const beforeLyricUpload = (file) => {
-  const isLyric = file.type === 'text/plain' || file.name.toLowerCase().endsWith('.lrc');
-  const isLt2M = file.size / 1024 / 1024 < 2;
-  if (!isLyric) {
-    ElMessage.error('歌词文件只能是lrc格式');
-  }
-  if (!isLt2M) {
-    ElMessage.error('歌词文件大小不能超过2M!');
-  }
-  return isLyric && isLt2M;
 }
 
 const beforeAudioUpload = (file) => {
@@ -250,11 +214,6 @@ const initFormData = async (id) => {
   form.value = res.data.homeItem;
   posterPicUrl.value = getServerUrl() + 'image/musicPicture/' + form.value.posterPic;
   thumbnailPicUrl.value = getServerUrl() + 'image/musicPicture/' + form.value.thumbnailPic;
-  if (form.value.lyric !== null) {
-    lyricUrl.value = getServerUrl() + 'audio/lyric/' + form.value.lyric;
-  } else {
-    lyricUrl.value = null;
-  }
   url.value = getServerUrl() + 'audio/music/' + form.value.url;
 };
 
@@ -274,7 +233,6 @@ watch(
           description: '',
           posterPic: '',
           thumbnailPic: '',
-          lyric: '',
           url: '',
           hdUrl: '',
           uhdUrl: '',
@@ -306,17 +264,6 @@ const handleConfirmUploadPosterPicture = async () => {
 
 const handleConfirmUploadThumbnailPicture = async () => {
   let result = await requestUtil.post("data/music/updateThumbnailPicture", form.value);
-  let data = result.data;
-  if (data.code === 200) {
-    ElMessage.success("执行成功！");
-    store.commit("SET_USERINFO", form.value);
-  } else {
-    ElMessage.error(data.msg);
-  }
-}
-
-const handleConfirmUploadLyric = async () => {
-  let result = await requestUtil.post("data/music/updateLyric", form.value);
   let data = result.data;
   if (data.code === 200) {
     ElMessage.success("执行成功！");
