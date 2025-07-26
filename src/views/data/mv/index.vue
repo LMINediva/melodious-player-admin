@@ -29,42 +29,40 @@
                alt="缩略图"/>
         </template>
       </el-table-column>
-      <el-table-column prop="title" label="音乐名" width="100" align="center"/>
-      <el-table-column label="歌词" width="100" align="center">
+      <el-table-column prop="regdate" label="发行时间" width="100" align="center" :formatter="formatDateTime"/>
+      <el-table-column prop="videoSourceTypeName" label="视频源类型名" width="100" align="center"/>
+      <el-table-column prop="totalViews" label="总浏览量" width="80" align="center"/>
+      <el-table-column prop="totalPcViews" label="PC端浏览量" width="80" align="center"/>
+      <el-table-column prop="totalMobileViews" label="手机端浏览量" width="80" align="center"/>
+      <el-table-column prop="totalComments" label="评论数" width="80" align="center"/>
+      <el-table-column label="MV" width="100" align="center">
         <template v-slot="scope">
-          <el-text v-if="scope.row.lyric" class="mx-1" type="primary"
-                   @click="handleLyricDialogValue(scope.row.id, scope.row.title, scope.row.lyric)">
-            {{ scope.row.lyric }}
+          <el-text v-if="scope.row.url" class="mx-1" type="primary"
+                   @click="handleVideoDialogValue(scope.row.id, scope.row.title, scope.row.url)">
+            {{ scope.row.url }}
           </el-text>
         </template>
       </el-table-column>
-      <el-table-column prop="url" label="音乐" width="350" align="center">
+      <el-table-column label="高清MV" width="100" align="center">
         <template v-slot="scope">
-          <audio ref="audioPlayer" controls>
-            <source :src="getServerUrl() + 'audio/mv/' + scope.row.url" type="audio/mpeg">
-            您的浏览器不支持audio元素。
-          </audio>
+          <el-text v-if="scope.row.hdUrl" class="mx-1" type="primary"
+                   @click="handleVideoDialogValue(scope.row.id, scope.row.title, scope.row.hdUrl)">
+            {{ scope.row.hdUrl }}
+          </el-text>
         </template>
       </el-table-column>
-      <el-table-column prop="hdUrl" label="高品质音乐" width="350" align="center">
+      <el-table-column label="超高清MV" width="100" align="center">
         <template v-slot="scope">
-          <audio ref="audioPlayer" controls>
-            <source :src="getServerUrl() + 'audio/mv/' + scope.row.hdUrl" type="audio/mpeg">
-            您的浏览器不支持audio元素。
-          </audio>
+          <el-text v-if="scope.row.uhdUrl" class="mx-1" type="primary"
+                   @click="handleVideoDialogValue(scope.row.id, scope.row.title, scope.row.uhdUrl)">
+            {{ scope.row.uhdUrl }}
+          </el-text>
         </template>
       </el-table-column>
-      <el-table-column prop="uhdUrl" label="超高品质音乐" width="350" align="center">
-        <template v-slot="scope">
-          <audio ref="audioPlayer" controls>
-            <source :src="getServerUrl() + 'audio/mv/' + scope.row.uhdUrl" type="audio/mpeg">
-            您的浏览器不支持audio元素。
-          </audio>
-        </template>
-      </el-table-column>
-      <el-table-column prop="mvSize" label="音乐大小（MB）" width="120" align="center"/>
-      <el-table-column prop="hdMVSize" label="高品质音乐大小（MB）" width="120" align="center"/>
-      <el-table-column prop="uhdMVSize" label="超高品质音乐大小（MB）" width="120" align="center"/>
+      <el-table-column prop="videoSize" label="MV大小（MB）" width="120" align="center"/>
+      <el-table-column prop="hdVideoSize" label="高清MV大小（MB）" width="120" align="center"/>
+      <el-table-column prop="uhdVideoSize" label="超高清MV大小（MB）" width="120" align="center"/>
+      <el-table-column prop="duration" label="MV时长" width="100" align="center" :formatter="formatTime"/>
       <el-table-column prop="status" label="状态" width="120" align="center" :formatter="stateFormat"/>
       <el-table-column prop="action" label="操作" width="400" fixed="right" align="center">
         <template v-slot="scope">
@@ -89,17 +87,18 @@
   </div>
   <Dialog v-model="dialogVisible" :dialogVisible="dialogVisible" :id="id" :dialogTitle="dialogTitle"
           @initMVList="initMVList"/>
-  <LyricDialog v-model="lyricDialogVisible" :dialogVisible="lyricDialogVisible"
-               :id="id" :dialogTitle="lyricDialogTitle"/>
+  <VideoDialog v-model="videoDialogVisible" :dialogVisible="videoDialogVisible"
+               :id="id" :dialogTitle="videoDialogTitle"/>
 </template>
 
 <script setup>
 import {ref} from 'vue';
 import requestUtil, {getServerUrl} from '@/util/request';
 import {Search, Delete, DocumentAdd, Edit, Tools, RefreshRight} from '@element-plus/icons-vue';
+import moment from 'moment-timezone';
 import Dialog from './components/dialog';
 import {ElMessage, ElMessageBox} from 'element-plus';
-import LyricDialog from './components/lyricDialog.vue';
+import VideoDialog from './components/videoDialog.vue';
 
 const tableData = ref([]);
 const total = ref(0);
@@ -110,9 +109,9 @@ const queryForm = ref({
 });
 
 const dialogVisible = ref(false);
-const lyricDialogVisible = ref(false);
+const videoDialogVisible = ref(false);
 const dialogTitle = ref("");
-const lyricDialogTitle = ref("");
+const videoDialogTitle = ref("");
 const id = ref(-1);
 const delBtnStatus = ref(true);
 const multipleSelection = ref([]);
@@ -154,15 +153,14 @@ const handleDialogValue = (mvId) => {
   dialogVisible.value = true;
 };
 
-const handleLyricDialogValue = (mvId, mvName, lyric) => {
+const handleVideoDialogValue = (mvId, mvName, url) => {
   id.value = mvId;
-  console.log("mvId = " + id.value);
-  if (lyric) {
-    lyricDialogTitle.value = mvName + " : " + lyric;
+  if (url) {
+    videoDialogTitle.value = mvName + " : " + url;
   } else {
-    lyricDialogTitle.value = "没找到歌词";
+    videoDialogTitle.value = "没找到MV";
   }
-  lyricDialogVisible.value = true;
+  videoDialogVisible.value = true;
 };
 
 const handleDelete = async (id) => {
@@ -195,6 +193,18 @@ const stateFormat = (row, column) => {
   } else {
     return '禁用';
   }
+};
+
+const formatDateTime = (row, column, cellValue, index) => {
+  return moment(cellValue).format("YYYY-MM-DD HH:mm:ss");
+};
+
+const formatTime = (row, column, cellValue, index) => {
+  console.log("time = " + cellValue);
+  if (!cellValue) {
+    return "";
+  }
+  return moment.utc(cellValue).tz("Asia/Shanghai").format("HH:mm:ss");
 };
 </script>
 

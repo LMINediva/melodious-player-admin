@@ -156,7 +156,6 @@ const handleDialogValue = (musicId) => {
 
 const handleLyricDialogValue = (musicId, musicName, lyric) => {
   id.value = musicId;
-  console.log("musicId = " + id.value);
   if (lyric) {
     lyricDialogTitle.value = musicName + " : " + lyric;
   } else {

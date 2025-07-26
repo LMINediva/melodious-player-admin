@@ -8,8 +8,10 @@
         ref="formRef"
         :model="form"
         label-width="100px">
-      <el-form-item label="歌词">
-        <el-text class="mx-1 text-wrap">{{ lyric }}</el-text>
+      <el-form-item label="MV">
+        <video :src="video" width="320" height="240" controls>
+          您的浏览器不支持video元素。
+        </video>
       </el-form-item>
     </el-form>
   </el-dialog>
@@ -42,20 +44,7 @@ const props = defineProps(
 
 const form = ref({
   id: -1,
-  type: '',
-  title: '',
-  artistName: '',
-  description: '',
-  posterPic: '',
-  thumbnailPic: '',
-  lyric: '',
-  url: '',
-  hdUrl: '',
-  uhdUrl: '',
-  musicSize: 0,
-  hdMusicSize: 0,
-  uhdMusicSize: 0,
-  status: 0
+  url: ''
 });
 
 const headers = ref({
@@ -63,13 +52,12 @@ const headers = ref({
 });
 
 const formRef = ref(null);
-const lyric = ref("");
+const video = ref("");
 
 const initFormData = async (id) => {
-  const res = await requestUtil.get("data/music/" + id);
-  form.value = res.data.homeItem;
-  const lyricRes = await requestUtil.get("audio/lyric/" + form.value.lyric);
-  lyric.value = lyricRes.data;
+  const res = await requestUtil.get("data/mv/" + id);
+  form.value = res.data.mvItem;
+  video.value = getServerUrl() + 'video/mv/' + form.value.url;
 };
 
 watch(
