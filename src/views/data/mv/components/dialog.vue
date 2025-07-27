@@ -9,27 +9,24 @@
         :model="form"
         :rules="rules"
         label-width="100px">
-      <el-form-item label="类型" prop="type">
-        <el-input v-model="form.type"/>
-      </el-form-item>
-      <el-form-item label="标题" prop="title">
+      <el-form-item label="MV名" prop="title">
         <el-input v-model="form.title"/>
+      </el-form-item>
+      <el-form-item label="描述" prop="description">
+        <el-mention v-model="form.description" type="textarea"/>
       </el-form-item>
       <el-form-item label="歌手姓名" prop="artistName">
         <el-input v-model="form.artistName"/>
-      </el-form-item>
-      <el-form-item label="描述" prop="description">
-        <el-input v-model="form.description"/>
       </el-form-item>
       <el-form-item label="海报图片" prop="posterPic">
         <el-upload
             :headers="headers"
             class="picture-uploader"
-            :action="getServerUrl() + 'data/music/uploadImage'"
+            :action="getServerUrl() + 'data/mv/uploadImage'"
             :show-file-list="false"
             :on-success="handlePosterPicSuccess"
             :before-upload="beforePictureUpload">
-          <img v-if="posterPicUrl" :src="posterPicUrl" class="picture"/>
+          <img v-if="posterPicUrl" :src="posterPicUrl" class="picture" alt="海报图片"/>
           <el-icon v-else class="picture-uploader-icon">
             <Plus/>
           </el-icon>
@@ -40,34 +37,43 @@
         <el-upload
             :headers="headers"
             class="picture-uploader"
-            :action="getServerUrl() + 'data/music/uploadImage'"
+            :action="getServerUrl() + 'data/mv/uploadImage'"
             :show-file-list="false"
             :on-success="handleThumbnailPicSuccess"
             :before-upload="beforePictureUpload">
-          <img v-if="thumbnailPicUrl" :src="thumbnailPicUrl" class="picture"/>
+          <img v-if="thumbnailPicUrl" :src="thumbnailPicUrl" class="picture" alt="缩略图"/>
           <el-icon v-else class="picture-uploader-icon">
             <Plus/>
           </el-icon>
         </el-upload>
         <el-button @click="handleConfirmUploadThumbnailPicture">确认更换</el-button>
       </el-form-item>
-      <el-form-item label="音乐" prop="url">
+      <el-form-item label="发行时间" prop="regdate">
+        <el-date-picker
+            v-model="form.regdate"
+            type="datetime"
+            placeholder="请选择一个日期"
+            format="YYYY-MM-DD HH:mm:ss"
+            date-format="MMM DD, YYYY"
+            time-format="HH:mm"/>
+      </el-form-item>
+      <el-form-item label="MV" prop="url">
         <el-upload
             :headers="headers"
             class="picture-uploader"
-            :action="getServerUrl() + 'data/music/uploadAudio'"
+            :action="getServerUrl() + 'data/mv/uploadVideo'"
             :show-file-list="false"
-            :on-success="handleAudioSuccess"
-            :before-upload="beforeAudioUpload">
-          <audio v-if="url" ref="audioPlayer" controls class="picture">
-            <source :src="url" type="audio/mpeg">
-            您的浏览器不支持audio元素。
-          </audio>
+            :on-success="handleVideoSuccess"
+            :before-upload="beforeVideoUpload">
+          <video ref="videoPlayer" v-if="url" :src="url" @loadedmetadata="getVideoDuration"
+                 width="320" height="240" controls>
+            您的浏览器不支持video元素。
+          </video>
           <el-icon v-else class="picture-uploader-icon">
             <Plus/>
           </el-icon>
         </el-upload>
-        <el-button @click="handleConfirmUploadAudio">确认更换</el-button>
+        <el-button @click="handleConfirmUploadVideo">确认更换</el-button>
       </el-form-item>
       <el-form-item label="状态" prop="status">
         <el-radio-group v-model="form.status">
@@ -120,12 +126,14 @@ const form = ref({
   description: '',
   posterPic: '',
   thumbnailPic: '',
+  regdate: '',
   url: '',
   hdUrl: '',
   uhdUrl: '',
-  musicSize: 0,
-  hdMusicSize: 0,
-  uhdMusicSize: 0,
+  videoSize: 0,
+  hdVideoSize: 0,
+  uhdVideoSize: 0,
+  duration: Date,
   status: 0
 });
 
@@ -136,7 +144,7 @@ const headers = ref({
 const posterPicUrl = ref("");
 const thumbnailPicUrl = ref("");
 const url = ref("");
-const audioName = ref("");
+const videoName = ref("");
 
 const handlePosterPicSuccess = (res) => {
   posterPicUrl.value = getServerUrl() + res.data.src;
@@ -148,9 +156,9 @@ const handleThumbnailPicSuccess = (res) => {
   form.value.thumbnailPic = res.data.title;
 };
 
-const handleAudioSuccess = (res) => {
+const handleVideoSuccess = (res) => {
   url.value = getServerUrl() + res.data.src;
-  audioName.value = res.data.title;
+  videoName.value = res.data.title;
   form.value.url = res.data.title;
 };
 
@@ -166,29 +174,34 @@ const beforePictureUpload = (file) => {
   return isJPG && isLt2M;
 }
 
-const beforeAudioUpload = (file) => {
-  const isMP3 = file.type === 'audio/mpeg' || file.type === 'audio/wav';
+const beforeVideoUpload = (file) => {
+  const isVideo = file.type.startsWith('video/');
   const fileSize = Number((file.size / 1024 / 1024).toFixed(1));
-  const isLt50M = fileSize < 50;
-  if (!isMP3) {
-    ElMessage.error('音频只能是mp3和wav格式');
+  const isLt1024M = fileSize < 1024;
+  if (!isVideo) {
+    ElMessage.error('请上传视频文件');
   }
-  if (!isLt50M) {
-    ElMessage.error('音频大小不能超过50M！');
+  if (!isLt1024M) {
+    ElMessage.error('视频大小不能超过1GB！');
   }
-  if (isMP3 && isLt50M) {
-    form.value.musicSize = fileSize;
-    form.value.hdMusicSize = fileSize;
-    form.value.uhdMusicSize = fileSize;
+  if (isVideo && isLt1024M) {
+    form.value.videoSize = fileSize;
+    form.value.hdVideoSize = fileSize;
+    form.value.uhdVideoSize = fileSize;
   }
-  return isMP3 && isLt50M;
+  return isVideo && isLt1024M;
+}
+
+const getVideoDuration = () => {
+  const videoPlayer = ref("videoPlayer");
+  console.log("duration = " + videoPlayer.value.duration);
 }
 
 const checkTitle = async (rule, value, callback) => {
   if (form.value.id === -1) {
-    const res = await requestUtil.post("data/music/checkTitle", {username: form.value.username});
+    const res = await requestUtil.post("data/mv/checkTitle", {title: form.value.title});
     if (res.data.code === 500) {
-      callback(new Error("音乐名已存在！"));
+      callback(new Error("MV名已存在！"));
     } else {
       callback();
     }
@@ -200,7 +213,7 @@ const checkTitle = async (rule, value, callback) => {
 const rules = ref({
   type: [{required: true, message: "类型不能为空", trigger: "blur"}],
   title: [
-    {required: true, message: '请输入音乐名'},
+    {required: true, message: '请输入MV名'},
     {required: true, validator: checkTitle, trigger: "blur"}
   ],
   artistName: [{required: true, message: "歌手姓名不能为空", trigger: "blur"}],
@@ -210,11 +223,11 @@ const rules = ref({
 const formRef = ref(null);
 
 const initFormData = async (id) => {
-  const res = await requestUtil.get("data/music/" + id);
-  form.value = res.data.homeItem;
-  posterPicUrl.value = getServerUrl() + 'image/musicPicture/' + form.value.posterPic;
-  thumbnailPicUrl.value = getServerUrl() + 'image/musicPicture/' + form.value.thumbnailPic;
-  url.value = getServerUrl() + 'audio/music/' + form.value.url;
+  const res = await requestUtil.get("data/mv/" + id);
+  form.value = res.data.mvItem;
+  posterPicUrl.value = getServerUrl() + 'image/mvPicture/' + form.value.posterPic;
+  thumbnailPicUrl.value = getServerUrl() + 'image/mvPicture/' + form.value.thumbnailPic;
+  url.value = getServerUrl() + 'video/mv/' + form.value.url;
 };
 
 watch(
@@ -233,12 +246,14 @@ watch(
           description: '',
           posterPic: '',
           thumbnailPic: '',
+          regdate: '',
           url: '',
           hdUrl: '',
           uhdUrl: '',
-          musicSize: 0,
-          hdMusicSize: 0,
-          uhdMusicSize: 0,
+          videoSize: 0,
+          hdVideoSize: 0,
+          uhdVideoSize: 0,
+          duration: Date,
           status: 0
         };
       }
@@ -252,7 +267,7 @@ const handleClose = () => {
 };
 
 const handleConfirmUploadPosterPicture = async () => {
-  let result = await requestUtil.post("data/music/updatePosterPicture", form.value);
+  let result = await requestUtil.post("data/mv/updatePosterPicture", form.value);
   let data = result.data;
   if (data.code === 200) {
     ElMessage.success("执行成功！");
@@ -263,7 +278,7 @@ const handleConfirmUploadPosterPicture = async () => {
 }
 
 const handleConfirmUploadThumbnailPicture = async () => {
-  let result = await requestUtil.post("data/music/updateThumbnailPicture", form.value);
+  let result = await requestUtil.post("data/mv/updateThumbnailPicture", form.value);
   let data = result.data;
   if (data.code === 200) {
     ElMessage.success("执行成功！");
@@ -273,8 +288,8 @@ const handleConfirmUploadThumbnailPicture = async () => {
   }
 }
 
-const handleConfirmUploadAudio = async () => {
-  let result = await requestUtil.post("data/music/updateAudio", form.value);
+const handleConfirmUploadVideo = async () => {
+  let result = await requestUtil.post("data/mv/updateVideo", form.value);
   let data = result.data;
   if (data.code === 200) {
     ElMessage.success("执行成功！");
@@ -289,10 +304,10 @@ const handleConfirm = () => {
     if (valid) {
       if (form.value.id === -1) {
         form.value.id = null;
-        form.value.hdUrl = audioName;
-        form.value.uhdUrl = audioName;
+        form.value.hdUrl = videoName;
+        form.value.uhdUrl = videoName;
       }
-      let result = await requestUtil.post("data/music/save", form.value);
+      let result = await requestUtil.post("data/mv/save", form.value);
       let data = result.data;
       if (data.code === 200) {
         ElMessage.success("执行成功！");

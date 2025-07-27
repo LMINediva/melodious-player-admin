@@ -12,7 +12,7 @@
       <el-form-item label="类型" prop="type">
         <el-input v-model="form.type"/>
       </el-form-item>
-      <el-form-item label="标题" prop="title">
+      <el-form-item label="音乐名" prop="title">
         <el-input v-model="form.title"/>
       </el-form-item>
       <el-form-item label="歌手姓名" prop="artistName">
@@ -29,7 +29,7 @@
             :show-file-list="false"
             :on-success="handlePosterPicSuccess"
             :before-upload="beforePictureUpload">
-          <img v-if="posterPicUrl" :src="posterPicUrl" class="picture"/>
+          <img v-if="posterPicUrl" :src="posterPicUrl" class="picture" alt="海报图片"/>
           <el-icon v-else class="picture-uploader-icon">
             <Plus/>
           </el-icon>
@@ -44,7 +44,7 @@
             :show-file-list="false"
             :on-success="handleThumbnailPicSuccess"
             :before-upload="beforePictureUpload">
-          <img v-if="thumbnailPicUrl" :src="thumbnailPicUrl" class="picture"/>
+          <img v-if="thumbnailPicUrl" :src="thumbnailPicUrl" class="picture" alt="缩略图"/>
           <el-icon v-else class="picture-uploader-icon">
             <Plus/>
           </el-icon>
@@ -222,7 +222,7 @@ const beforeAudioUpload = (file) => {
 
 const checkTitle = async (rule, value, callback) => {
   if (form.value.id === -1) {
-    const res = await requestUtil.post("data/music/checkTitle", {username: form.value.username});
+    const res = await requestUtil.post("data/music/checkTitle", {title: form.value.title});
     if (res.data.code === 500) {
       callback(new Error("音乐名已存在！"));
     } else {

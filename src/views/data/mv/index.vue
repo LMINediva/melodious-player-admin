@@ -145,10 +145,10 @@ const handleCurrentChange = (pageNum) => {
 const handleDialogValue = (mvId) => {
   if (mvId) {
     id.value = mvId;
-    dialogTitle.value = "在线音乐修改";
+    dialogTitle.value = "在线MV修改";
   } else {
     id.value = -1;
-    dialogTitle.value = "在线音乐添加";
+    dialogTitle.value = "在线MV添加";
   }
   dialogVisible.value = true;
 };
@@ -200,7 +200,6 @@ const formatDateTime = (row, column, cellValue, index) => {
 };
 
 const formatTime = (row, column, cellValue, index) => {
-  console.log("time = " + cellValue);
   if (!cellValue) {
     return "";
   }
