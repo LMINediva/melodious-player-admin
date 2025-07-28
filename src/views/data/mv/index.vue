@@ -62,7 +62,7 @@
       <el-table-column prop="videoSize" label="MV大小（MB）" width="120" align="center"/>
       <el-table-column prop="hdVideoSize" label="高清MV大小（MB）" width="120" align="center"/>
       <el-table-column prop="uhdVideoSize" label="超高清MV大小（MB）" width="120" align="center"/>
-      <el-table-column prop="duration" label="MV时长" width="100" align="center" :formatter="formatTime"/>
+      <el-table-column prop="duration" label="MV时长" width="100" align="center"/>
       <el-table-column prop="status" label="状态" width="120" align="center" :formatter="stateFormat"/>
       <el-table-column prop="action" label="操作" width="400" fixed="right" align="center">
         <template v-slot="scope">
@@ -197,13 +197,6 @@ const stateFormat = (row, column) => {
 
 const formatDateTime = (row, column, cellValue, index) => {
   return moment(cellValue).format("YYYY-MM-DD HH:mm:ss");
-};
-
-const formatTime = (row, column, cellValue, index) => {
-  if (!cellValue) {
-    return "";
-  }
-  return moment.utc(cellValue).tz("Asia/Shanghai").format("HH:mm:ss");
 };
 </script>
 

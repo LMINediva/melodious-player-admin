@@ -9,9 +9,6 @@
         :model="form"
         :rules="rules"
         label-width="100px">
-      <el-form-item label="类型" prop="type">
-        <el-input v-model="form.type"/>
-      </el-form-item>
       <el-form-item label="音乐名" prop="title">
         <el-input v-model="form.title"/>
       </el-form-item>
@@ -216,6 +213,7 @@ const beforeAudioUpload = (file) => {
     form.value.musicSize = fileSize;
     form.value.hdMusicSize = fileSize;
     form.value.uhdMusicSize = fileSize;
+    form.value.type = file.type;
   }
   return isMP3 && isLt50M;
 }
@@ -234,7 +232,6 @@ const checkTitle = async (rule, value, callback) => {
 };
 
 const rules = ref({
-  type: [{required: true, message: "类型不能为空", trigger: "blur"}],
   title: [
     {required: true, message: '请输入音乐名'},
     {required: true, validator: checkTitle, trigger: "blur"}
@@ -283,6 +280,10 @@ watch(
           uhdMusicSize: 0,
           status: 0
         };
+        url.value = null;
+        posterPicUrl.value = null;
+        thumbnailPicUrl.value = null;
+        lyricUrl.value = null;
       }
     }
 );

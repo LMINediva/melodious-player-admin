@@ -97,6 +97,7 @@ import requestUtil, {getServerUrl} from '@/util/request';
 import {ElMessage} from 'element-plus';
 import {Plus} from "@element-plus/icons-vue";
 import store from "@/store";
+import moment from 'moment-timezone';
 
 const props = defineProps(
     {
@@ -126,7 +127,8 @@ const form = ref({
   description: '',
   posterPic: '',
   thumbnailPic: '',
-  regdate: '',
+  regdate: Date,
+  videoSourceTypeName: '',
   url: '',
   hdUrl: '',
   uhdUrl: '',
@@ -145,6 +147,7 @@ const posterPicUrl = ref("");
 const thumbnailPicUrl = ref("");
 const url = ref("");
 const videoName = ref("");
+const videoPlayer = ref(null);
 
 const handlePosterPicSuccess = (res) => {
   posterPicUrl.value = getServerUrl() + res.data.src;
@@ -188,13 +191,16 @@ const beforeVideoUpload = (file) => {
     form.value.videoSize = fileSize;
     form.value.hdVideoSize = fileSize;
     form.value.uhdVideoSize = fileSize;
+    form.value.videoSourceTypeName = file.type;
   }
   return isVideo && isLt1024M;
 }
 
 const getVideoDuration = () => {
-  const videoPlayer = ref("videoPlayer");
-  console.log("duration = " + videoPlayer.value.duration);
+  if (videoPlayer.value) {
+    const durationInSeconds = videoPlayer.value.duration;
+    form.value.duration = moment.utc(durationInSeconds * 1000).format("HH:mm:ss");
+  }
 }
 
 const checkTitle = async (rule, value, callback) => {
@@ -246,7 +252,8 @@ watch(
           description: '',
           posterPic: '',
           thumbnailPic: '',
-          regdate: '',
+          regdate: Date,
+          videoSourceTypeName: '',
           url: '',
           hdUrl: '',
           uhdUrl: '',
@@ -256,6 +263,9 @@ watch(
           duration: Date,
           status: 0
         };
+        url.value = null;
+        posterPicUrl.value = null;
+        thumbnailPicUrl.value = null;
       }
     }
 );
