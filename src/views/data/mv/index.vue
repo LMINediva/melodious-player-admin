@@ -5,7 +5,7 @@
         <el-input placeholder="请输入MV名..." v-model="queryForm.query" clearable></el-input>
       </el-col>
       <el-button type="primary" :icon="Search" @click="initMVList">搜索</el-button>
-      <el-button type="success" :icon="DocumentAdd" @click="handleDialogValue()">新增</el-button>
+      <el-button type="success" :icon="DocumentAdd" @click="handleDialogValue(null)">新增</el-button>
       <el-popconfirm title="您确定批量删除这些记录吗？" @confirm="handleDelete(null)">
         <template #reference>
           <el-button type="danger" :disabled="delBtnStatus" :icon="Delete">批量删除</el-button>
@@ -31,6 +31,7 @@
       </el-table-column>
       <el-table-column prop="regdate" label="发行时间" width="100" align="center" :formatter="formatDateTime"/>
       <el-table-column prop="videoSourceTypeName" label="视频源类型名" width="100" align="center"/>
+      <el-table-column prop="mvArea.name" label="区域" width="100" align="center"/>
       <el-table-column prop="totalViews" label="总浏览量" width="80" align="center"/>
       <el-table-column prop="totalPcViews" label="PC端浏览量" width="80" align="center"/>
       <el-table-column prop="totalMobileViews" label="手机端浏览量" width="80" align="center"/>

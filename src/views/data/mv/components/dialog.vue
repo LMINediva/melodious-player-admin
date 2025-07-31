@@ -15,6 +15,15 @@
       <el-form-item label="描述" prop="description">
         <el-mention v-model="form.description" type="textarea"/>
       </el-form-item>
+      <el-form-item label="区域" prop="mvArea.id">
+        <el-select v-model="form.mvArea.name">
+          <el-option
+              v-for="area in areas"
+              :key="area.name"
+              :label="area.name"
+              :value="area.id"/>
+        </el-select>
+      </el-form-item>
       <el-form-item label="歌手姓名" prop="artistName">
         <el-input v-model="form.artistName"/>
       </el-form-item>
@@ -125,6 +134,11 @@ const form = ref({
   title: '',
   artistName: '',
   description: '',
+  mvArea: {
+    id: -1,
+    name: '',
+    code: ''
+  },
   posterPic: '',
   thumbnailPic: '',
   regdate: Date,
@@ -136,7 +150,8 @@ const form = ref({
   hdVideoSize: 0,
   uhdVideoSize: 0,
   duration: Date,
-  status: 0
+  status: 0,
+  oldMvAreaId: -1
 });
 
 const headers = ref({
@@ -148,6 +163,7 @@ const thumbnailPicUrl = ref("");
 const url = ref("");
 const videoName = ref("");
 const videoPlayer = ref(null);
+const areas = ref([]);
 
 const handlePosterPicSuccess = (res) => {
   posterPicUrl.value = getServerUrl() + res.data.src;
@@ -234,11 +250,18 @@ const initFormData = async (id) => {
   posterPicUrl.value = getServerUrl() + 'image/mvPicture/' + form.value.posterPic;
   thumbnailPicUrl.value = getServerUrl() + 'image/mvPicture/' + form.value.thumbnailPic;
   url.value = getServerUrl() + 'video/mv/' + form.value.url;
+  form.value.oldMvAreaId = form.value.mvArea.id;
 };
+
+const initAreaData = async () => {
+  const areasRes = await requestUtil.get("mv_areas");
+  areas.value = areasRes.data;
+}
 
 watch(
     () => props.dialogVisible,
     () => {
+      initAreaData();
       let id = props.id;
       console.log("id=" + id);
       if (id !== -1) {
@@ -250,6 +273,11 @@ watch(
           title: '',
           artistName: '',
           description: '',
+          mvArea: {
+            id: -1,
+            name: '',
+            code: ''
+          },
           posterPic: '',
           thumbnailPic: '',
           regdate: Date,
@@ -261,7 +289,8 @@ watch(
           hdVideoSize: 0,
           uhdVideoSize: 0,
           duration: Date,
-          status: 0
+          status: 0,
+          oldMvAreaId: -1
         };
         url.value = null;
         posterPicUrl.value = null;
@@ -316,7 +345,9 @@ const handleConfirm = () => {
         form.value.id = null;
         form.value.hdUrl = videoName;
         form.value.uhdUrl = videoName;
+        form.value.mvArea.id = form.value.mvArea.name;
       }
+      form.value.mvArea.id = form.value.mvArea.name;
       let result = await requestUtil.post("data/mv/save", form.value);
       let data = result.data;
       if (data.code === 200) {
