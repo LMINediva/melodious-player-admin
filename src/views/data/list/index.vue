@@ -84,10 +84,6 @@ const queryForm = ref({
   pageNum: 1,
   pageSize: 10
 });
-const playForm = ref({
-  playId: -1,
-  mvIds: []
-});
 
 const dialogVisible = ref(false);
 const videoDialogVisible = ref(false);
@@ -134,10 +130,10 @@ const handleDialogValue = (listId) => {
   dialogVisible.value = true;
 };
 
-const handleVideoDialogValue = (listId, listName, url) => {
+const handleVideoDialogValue = (listId, listName, mvArray) => {
   id.value = listId;
-  if (url) {
-    videoDialogTitle.value = listName + " : " + url;
+  if (mvArray) {
+    videoDialogTitle.value = listName;
   } else {
     videoDialogTitle.value = "没找到";
   }

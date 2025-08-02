@@ -8,8 +8,8 @@
         ref="formRef"
         :model="form"
         label-width="100px">
-      <el-form-item label="MV">
-        <video :src="video" width="320" height="240" controls>
+      <el-form-item v-for="mv in form.mvList" :label="mv.title">
+        <video :src="getServerUrl() + 'video/mv/' + mv.url" width="320" height="240" controls>
           您的浏览器不支持video元素。
         </video>
       </el-form-item>
@@ -44,7 +44,7 @@ const props = defineProps(
 
 const form = ref({
   id: -1,
-  url: ''
+  mvList: []
 });
 
 const headers = ref({
@@ -52,12 +52,10 @@ const headers = ref({
 });
 
 const formRef = ref(null);
-const video = ref("");
 
 const initFormData = async (id) => {
-  const res = await requestUtil.get("data/mv/" + id);
-  form.value = res.data.mvItem;
-  video.value = getServerUrl() + 'video/mv/' + form.value.url;
+  const res = await requestUtil.get("data/list/" + id);
+  form.value = res.data.playItem;
 };
 
 watch(
