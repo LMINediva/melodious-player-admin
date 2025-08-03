@@ -288,7 +288,7 @@ watch(
     }
 );
 
-const emits = defineEmits(['update:modelValue', 'initUserList']);
+const emits = defineEmits(['update:modelValue', 'initMusicList']);
 
 const handleClose = () => {
   emits('update:modelValue', false);
@@ -351,7 +351,7 @@ const handleConfirm = () => {
       if (data.code === 200) {
         ElMessage.success("执行成功！");
         formRef.value.resetFields();
-        emits("initUserList");
+        emits("initMusicList");
         handleClose();
       } else {
         ElMessage.error(data.msg);
