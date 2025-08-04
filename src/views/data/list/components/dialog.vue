@@ -2,7 +2,7 @@
   <el-dialog
       v-bind="dialogVisible"
       :title="dialogTitle"
-      width="30%"
+      width="50%"
       @close="handleClose">
     <el-form
         ref="formRef"
@@ -26,6 +26,32 @@
           </el-icon>
         </el-upload>
         <el-button @click="handleConfirmUploadThumbnailPicture">确认更换</el-button>
+      </el-form-item>
+      <el-form-item label="MV" prop="mvList">
+        <el-table v-if="form.id !== -1"
+                  :data="form.mvList.slice((queryForm.pageNum - 1) * queryForm.pageSize,
+            (queryForm.pageNum - 1) * queryForm.pageSize + queryForm.pageSize)"
+                  stripe style="width: 100%" @selection-change="handleSelectionChange">
+          <el-table-column type="selection" width="55"/>
+          <el-table-column prop="title" label="MV名" width="100" align="center"/>
+          <el-table-column prop="artistName" label="歌手名称" width="100" align="center"/>
+          <el-table-column prop="videoSourceTypeName" label="视频源类型名" width="100" align="center"/>
+        </el-table>
+        <el-table v-else :data="tableData" stripe style="width: 100%" @selection-change="handleSelectionChange">
+          <el-table-column type="selection" width="55"/>
+          <el-table-column prop="title" label="MV名" width="100" align="center"/>
+          <el-table-column prop="artistName" label="歌手名称" width="100" align="center"/>
+          <el-table-column prop="videoSourceTypeName" label="视频源类型名" width="100" align="center"/>
+        </el-table>
+        <el-pagination
+            v-model:current-page="queryForm.pageNum"
+            v-model:page-size="queryForm.pageSize"
+            :page-sizes="[10, 20, 30, 40]"
+            layout="total, sizes, prev, pager, next, jumper"
+            :total="total"
+            @size-change="handleSizeChange"
+            @current-change="handleCurrentChange"
+        />
       </el-form-item>
       <el-form-item label="描述" prop="description">
         <el-mention v-model="form.description" type="textarea"/>
@@ -100,6 +126,7 @@ const form = ref({
   type: '',
   title: '',
   thumbnailPic: '',
+  mvList: [],
   description: '',
   status: 0,
   createdTime: Date,
@@ -113,13 +140,17 @@ const headers = ref({
   token: store.getters.GET_TOKEN
 });
 
-const posterPicUrl = ref("");
+const tableData = ref([]);
+const total = ref(0);
+const queryForm = ref({
+  query: '',
+  pageNum: 1,
+  pageSize: 10
+});
+
 const thumbnailPicUrl = ref("");
-const url = ref("");
-const videoName = ref("");
-const videoPlayer = ref(null);
-const areas = ref([]);
 const formRef = ref(null);
+const multipleSelection = ref([]);
 
 const handleThumbnailPicSuccess = (res) => {
   thumbnailPicUrl.value = getServerUrl() + res.data.src;
@@ -161,22 +192,13 @@ const rules = ref({
 
 const initFormData = async (id) => {
   const res = await requestUtil.get("data/list/" + id);
-  form.value = res.data.listItem;
-  posterPicUrl.value = getServerUrl() + 'image/listPicture/' + form.value.posterPic;
+  form.value = res.data.playItem;
   thumbnailPicUrl.value = getServerUrl() + 'image/listPicture/' + form.value.thumbnailPic;
-  url.value = getServerUrl() + 'video/list/' + form.value.url;
-  form.value.oldMvAreaId = form.value.listArea.id;
 };
-
-const initAreaData = async () => {
-  const areasRes = await requestUtil.get("list_areas");
-  areas.value = areasRes.data;
-}
 
 watch(
     () => props.dialogVisible,
     () => {
-      initAreaData();
       let id = props.id;
       console.log("id=" + id);
       if (id !== -1) {
@@ -187,6 +209,7 @@ watch(
           type: '',
           title: '',
           thumbnailPic: '',
+          mvList: [],
           description: '',
           status: 0,
           createdTime: Date,
@@ -195,8 +218,6 @@ watch(
           totalUser: 0,
           rank: 0
         };
-        url.value = null;
-        posterPicUrl.value = null;
         thumbnailPicUrl.value = null;
       }
     }
@@ -219,16 +240,43 @@ const handleConfirmUploadThumbnailPicture = async () => {
   }
 }
 
+const handleSelectionChange = (selection) => {
+  console.log("勾选了");
+  console.log(selection);
+  multipleSelection.value = selection;
+};
+
+const handleSizeChange = (pageSize) => {
+  queryForm.value.pageNum = 1;
+  queryForm.value.pageSize = pageSize;
+  if (form.value.id === -1) {
+    initMVList();
+  }
+};
+
+const handleCurrentChange = (pageNum) => {
+  queryForm.value.pageNum = pageNum;
+  if (form.value.id === -1) {
+    initMVList();
+  }
+};
+
+const initMVList = async () => {
+  const res = await requestUtil.post("data/mv/list", queryForm.value);
+  tableData.value = res.data.mvList;
+  total.value = res.data.total;
+};
+
+if (form.value.id === -1) {
+  initMVList();
+}
+
 const handleConfirm = () => {
   formRef.value.validate(async (valid) => {
     if (valid) {
       if (form.value.id === -1) {
         form.value.id = null;
-        form.value.hdUrl = videoName;
-        form.value.uhdUrl = videoName;
-        form.value.listArea.id = form.value.listArea.name;
       }
-      form.value.listArea.id = form.value.listArea.name;
       let result = await requestUtil.post("data/list/save", form.value);
       let data = result.data;
       if (data.code === 200) {
