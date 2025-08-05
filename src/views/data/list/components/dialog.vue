@@ -194,6 +194,7 @@ const initFormData = async (id) => {
   const res = await requestUtil.get("data/list/" + id);
   form.value = res.data.playItem;
   thumbnailPicUrl.value = getServerUrl() + 'image/listPicture/' + form.value.thumbnailPic;
+  total.value = res.data.playItem.mvList.length;
 };
 
 watch(
@@ -219,6 +220,7 @@ watch(
           rank: 0
         };
         thumbnailPicUrl.value = null;
+        initMVList();
       }
     }
 );
@@ -266,10 +268,6 @@ const initMVList = async () => {
   tableData.value = res.data.mvList;
   total.value = res.data.total;
 };
-
-if (form.value.id === -1) {
-  initMVList();
-}
 
 const handleConfirm = () => {
   formRef.value.validate(async (valid) => {
