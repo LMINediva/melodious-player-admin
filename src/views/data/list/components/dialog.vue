@@ -28,20 +28,44 @@
         <el-button @click="handleConfirmUploadThumbnailPicture">确认更换</el-button>
       </el-form-item>
       <el-form-item label="MV" prop="mvList">
+        <el-button v-if="form.id !== -1" type="success" :icon="DocumentAdd"
+                   @click="handleDialogValue(null)">新增
+        </el-button>
         <el-table v-if="form.id !== -1"
                   :data="form.mvList.slice((queryForm.pageNum - 1) * queryForm.pageSize,
             (queryForm.pageNum - 1) * queryForm.pageSize + queryForm.pageSize)"
-                  stripe style="width: 100%" @selection-change="handleSelectionChange">
-          <el-table-column type="selection" width="55"/>
+                  stripe style="width: 100%">
           <el-table-column prop="title" label="MV名" width="100" align="center"/>
           <el-table-column prop="artistName" label="歌手名称" width="100" align="center"/>
-          <el-table-column prop="videoSourceTypeName" label="视频源类型名" width="100" align="center"/>
+          <el-table-column prop="videoSourceTypeName" label="视频类型" width="100" align="center"/>
+          <el-table-column label="海报图片" prop="posterPic">
+            <template v-slot="scope">
+              <img :src="getServerUrl() + 'image/mvPicture/' + scope.row.posterPic" width="50" height="50"
+                   alt="海报图片"/>
+            </template>
+          </el-table-column>
+          <el-table-column prop="action" label="操作" width="200" align="center">
+            <template v-slot="scope">
+              <el-popconfirm title="您确定要删除这条MV吗？" @confirm="handleDelete(scope.row.id)">
+                <template #reference>
+                  <el-button type="danger" :icon="Delete"/>
+                </template>
+              </el-popconfirm>
+            </template>
+          </el-table-column>
         </el-table>
-        <el-table v-else :data="tableData" stripe style="width: 100%" @selection-change="handleSelectionChange">
+        <el-table v-else :data="tableData" stripe style="width: 100%"
+                  @selection-change="handleSelectionChange">
           <el-table-column type="selection" width="55"/>
           <el-table-column prop="title" label="MV名" width="100" align="center"/>
           <el-table-column prop="artistName" label="歌手名称" width="100" align="center"/>
-          <el-table-column prop="videoSourceTypeName" label="视频源类型名" width="100" align="center"/>
+          <el-table-column prop="videoSourceTypeName" label="视频类型" width="100" align="center"/>
+          <el-table-column label="海报图片" prop="posterPic">
+            <template v-slot="scope">
+              <img :src="getServerUrl() + 'image/mvPicture/' + scope.row.posterPic" width="50" height="50"
+                   alt="海报图片"/>
+            </template>
+          </el-table-column>
         </el-table>
         <el-pagination
             v-model:current-page="queryForm.pageNum"
@@ -90,6 +114,8 @@
         <el-button @click="handleClose">取消</el-button>
       </span>
     </template>
+    <AddMVDialog v-model="dialogVisible" :dialogVisible="dialogVisible" :dialogTitle="dialogTitle"
+                 :mvs="mvs" @updateSelection="handleSelection" @closeDialog="handleCloseDialog"/>
   </el-dialog>
 </template>
 
@@ -97,9 +123,9 @@
 import {defineEmits, defineProps, ref, watch} from 'vue';
 import requestUtil, {getServerUrl} from '@/util/request';
 import {ElMessage} from 'element-plus';
-import {Plus} from "@element-plus/icons-vue";
+import {Delete, DocumentAdd, Plus} from "@element-plus/icons-vue";
 import store from "@/store";
-import moment from 'moment-timezone';
+import AddMVDialog from "./dialog/addMVDialog.vue";
 
 const props = defineProps(
     {
@@ -123,12 +149,16 @@ const props = defineProps(
 
 const form = ref({
   id: -1,
-  type: '',
   title: '',
   thumbnailPic: '',
+  videoCount: 0,
   mvList: [],
   description: '',
+  category: '',
   status: 0,
+  totalViews: 0,
+  totalFavorites: 0,
+  updateTime: Date,
   createdTime: Date,
   integral: 0,
   weekIntegral: 0,
@@ -151,6 +181,10 @@ const queryForm = ref({
 const thumbnailPicUrl = ref("");
 const formRef = ref(null);
 const multipleSelection = ref([]);
+const id = ref(-1);
+const dialogVisible = ref(false);
+const dialogTitle = ref("");
+const mvs = ref([]);
 
 const handleThumbnailPicSuccess = (res) => {
   thumbnailPicUrl.value = getServerUrl() + res.data.src;
@@ -195,6 +229,7 @@ const initFormData = async (id) => {
   form.value = res.data.playItem;
   thumbnailPicUrl.value = getServerUrl() + 'image/listPicture/' + form.value.thumbnailPic;
   total.value = res.data.playItem.mvList.length;
+  mvs.value = res.data.playItem.mvList;
 };
 
 watch(
@@ -207,12 +242,16 @@ watch(
       } else {
         form.value = {
           id: -1,
-          type: '',
           title: '',
           thumbnailPic: '',
+          videoCount: 0,
           mvList: [],
           description: '',
+          category: '',
           status: 0,
+          totalViews: 0,
+          totalFavorites: 0,
+          updateTime: Date,
           createdTime: Date,
           integral: 0,
           weekIntegral: 0,
@@ -267,6 +306,45 @@ const initMVList = async () => {
   const res = await requestUtil.post("data/mv/list", queryForm.value);
   tableData.value = res.data.mvList;
   total.value = res.data.total;
+};
+
+const handleDelete = async (id) => {
+  var ids = [];
+  if (id) {
+    ids.push(id);
+  } else {
+    multipleSelection.value.forEach(row => {
+      ids.push(row.id);
+    });
+  }
+  const res = await requestUtil.post("data/list/delete", ids);
+  if (res.data.code === 200) {
+    ElMessage({
+      type: 'success',
+      message: '执行成功!'
+    });
+  } else {
+    ElMessage({
+      type: 'error',
+      message: res.data.msg,
+    });
+  }
+};
+
+const handleDialogValue = () => {
+  dialogTitle.value = "在线悦单添加MV";
+  dialogVisible.value = true;
+};
+
+const handleSelection = (selection) => {
+  form.value.mvList = form.value.mvList.concat(selection);
+  mvs.value = mvs.value.concat(selection);
+  total.value = total.value + selection.length;
+  dialogVisible.value = false;
+};
+
+const handleCloseDialog = () => {
+  dialogVisible.value = false;
 };
 
 const handleConfirm = () => {

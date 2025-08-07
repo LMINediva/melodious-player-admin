@@ -30,7 +30,7 @@
         </template>
       </el-table-column>
       <el-table-column prop="regdate" label="发行时间" width="100" align="center" :formatter="formatDateTime"/>
-      <el-table-column prop="videoSourceTypeName" label="视频源类型名" width="100" align="center"/>
+      <el-table-column prop="videoSourceTypeName" label="视频类型" width="100" align="center"/>
       <el-table-column prop="mvArea.name" label="区域" width="100" align="center"/>
       <el-table-column prop="totalViews" label="总浏览量" width="80" align="center"/>
       <el-table-column prop="totalPcViews" label="PC端浏览量" width="80" align="center"/>

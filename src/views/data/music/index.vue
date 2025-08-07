@@ -14,7 +14,7 @@
     </el-row>
     <el-table :data="tableData" stripe style="width: 100%" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55"/>
-      <el-table-column prop="type" label="类型" width="80" align="center"/>
+      <el-table-column prop="type" label="音乐类型" width="80" align="center"/>
       <el-table-column prop="title" label="音乐名" width="100" align="center"/>
       <el-table-column prop="artistName" label="歌手名称" width="100" align="center"/>
       <el-table-column prop="description" label="描述" width="200" align="center"/>
