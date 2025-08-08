@@ -42,7 +42,11 @@ import store from "@/store";
 
 const props = defineProps(
     {
-      mvs: [],
+      mvs: {
+        type: Array,
+        default: [],
+        required: true
+      },
       dialogTitle: {
         type: String,
         default: '',
@@ -98,8 +102,8 @@ const initMVList = async () => {
   const res = await requestUtil.post("data/mv/list", queryForm.value);
   tableData.value = res.data.mvList;
   total.value = res.data.total - props.mvs.length;
-  for (var i = 0; i < tableData.value.length; i++) {
-    for (var j = 0; j < props.mvs.length; j++) {
+  for (let i = 0; i < tableData.value.length; i++) {
+    for (let j = 0; j < props.mvs.length; j++) {
       if (tableData.value[i].id === props.mvs[j].id) {
         tableData.value.splice(i, 1);
       }

@@ -295,6 +295,7 @@ watch(
         url.value = null;
         posterPicUrl.value = null;
         thumbnailPicUrl.value = null;
+        form.value.regdate = new Date();
       }
     }
 );

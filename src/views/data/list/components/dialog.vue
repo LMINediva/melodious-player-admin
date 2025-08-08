@@ -46,7 +46,7 @@
           </el-table-column>
           <el-table-column prop="action" label="操作" width="200" align="center">
             <template v-slot="scope">
-              <el-popconfirm title="您确定要删除这条MV吗？" @confirm="handleDelete(scope.row.id)">
+              <el-popconfirm title="您确定要删除这条悦单吗？" @confirm="handleDelete(scope.row.id)">
                 <template #reference>
                   <el-button type="danger" :icon="Delete"/>
                 </template>
@@ -259,6 +259,8 @@ watch(
           rank: 0
         };
         thumbnailPicUrl.value = null;
+        form.value.updateTime = new Date();
+        form.value.createdTime = new Date();
         initMVList();
       }
     }
@@ -308,26 +310,16 @@ const initMVList = async () => {
   total.value = res.data.total;
 };
 
-const handleDelete = async (id) => {
-  var ids = [];
-  if (id) {
-    ids.push(id);
-  } else {
-    multipleSelection.value.forEach(row => {
-      ids.push(row.id);
-    });
+const handleDelete = (id) => {
+  for (let i = 0; i < form.value.mvList.length; i++) {
+    if (form.value.mvList[i].id === id) {
+      form.value.mvList.splice(i, 1);
+    }
   }
-  const res = await requestUtil.post("data/list/delete", ids);
-  if (res.data.code === 200) {
-    ElMessage({
-      type: 'success',
-      message: '执行成功!'
-    });
-  } else {
-    ElMessage({
-      type: 'error',
-      message: res.data.msg,
-    });
+  for (let i = 0; i < mvs.value.length; i++) {
+    if (mvs.value[i].id === id) {
+      mvs.value.splice(i, 1);
+    }
   }
 };
 
@@ -353,6 +345,7 @@ const handleConfirm = () => {
       if (form.value.id === -1) {
         form.value.id = null;
       }
+      form.value.videoCount = form.value.mvList.length;
       let result = await requestUtil.post("data/list/save", form.value);
       let data = result.data;
       if (data.code === 200) {
