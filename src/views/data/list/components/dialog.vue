@@ -163,7 +163,8 @@ const form = ref({
   integral: 0,
   weekIntegral: 0,
   totalUser: 0,
-  rank: 0
+  rank: 0,
+  sysUser: {}
 });
 
 const headers = ref({
@@ -180,11 +181,11 @@ const queryForm = ref({
 
 const thumbnailPicUrl = ref("");
 const formRef = ref(null);
-const multipleSelection = ref([]);
 const id = ref(-1);
 const dialogVisible = ref(false);
 const dialogTitle = ref("");
 const mvs = ref([]);
+const currentUser = ref(store.getters.GET_USERINFO);
 
 const handleThumbnailPicSuccess = (res) => {
   thumbnailPicUrl.value = getServerUrl() + res.data.src;
@@ -256,7 +257,8 @@ watch(
           integral: 0,
           weekIntegral: 0,
           totalUser: 0,
-          rank: 0
+          rank: 0,
+          sysUser: {}
         };
         thumbnailPicUrl.value = null;
         form.value.updateTime = new Date();
@@ -286,7 +288,7 @@ const handleConfirmUploadThumbnailPicture = async () => {
 const handleSelectionChange = (selection) => {
   console.log("勾选了");
   console.log(selection);
-  multipleSelection.value = selection;
+  form.value.mvList = selection;
 };
 
 const handleSizeChange = (pageSize) => {
@@ -344,6 +346,7 @@ const handleConfirm = () => {
     if (valid) {
       if (form.value.id === -1) {
         form.value.id = null;
+        form.value.sysUser = currentUser;
       }
       form.value.videoCount = form.value.mvList.length;
       let result = await requestUtil.post("data/list/save", form.value);
