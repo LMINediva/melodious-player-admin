@@ -346,9 +346,7 @@ const handleConfirm = () => {
         form.value.id = null;
         form.value.hdUrl = videoName;
         form.value.uhdUrl = videoName;
-        form.value.mvArea.id = form.value.mvArea.name;
       }
-      form.value.mvArea.id = form.value.mvArea.name;
       let result = await requestUtil.post("data/mv/save", form.value);
       let data = result.data;
       if (data.code === 200) {
