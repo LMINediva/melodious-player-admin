@@ -48,7 +48,7 @@
 </template>
 
 <script setup>
-import {ref} from 'vue';
+import {defineProps, ref} from 'vue';
 import requestUtil, {getServerUrl} from '@/util/request';
 import {Search, Delete, DocumentAdd, Edit, Tools, RefreshRight} from '@element-plus/icons-vue';
 import Dialog from './components/dialog';

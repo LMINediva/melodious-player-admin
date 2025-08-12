@@ -5,7 +5,8 @@
       class="el-menu-vertical-demo"
       text-color="#fff"
       router
-      :default-active="activeIndex">
+      :default-active="activeIndex"
+      :collapse="collapse">
     <el-menu-item index="/index">
       <el-icon>
         <home-filled/>
@@ -42,8 +43,18 @@ import {
   SwitchButton,
   Promotion
 } from '@element-plus/icons-vue';
-import {ref, watch} from 'vue';
+import {defineProps, ref, watch} from 'vue';
 import store from '@/store';
+
+const props = defineProps(
+    {
+      collapse: {
+        type: Boolean,
+        default: false,
+        required: true
+      }
+    }
+);
 
 const menuList = ref(store.getters.GET_MENULIST);
 const openTab = (item) => {
