@@ -1,21 +1,56 @@
 <template>
-  <div className="home">
-    欢迎使用，悦听影音APP权限管理系统 ！
+  <div class="home">
+    <el-row :gutter="10">
+      <el-col :span="12">
+        <el-card>
+          <e-charts class="lineChart" :option="lineOption"/>
+        </el-card>
+      </el-col>
+      <el-col :span="12">
+        <el-card>
+
+        </el-card>
+      </el-col>
+    </el-row>
   </div>
 </template>
 
-<script>
-import {defineComponent} from 'vue';
+<script setup>
+import {defineComponent, ref} from 'vue';
 
-export default defineComponent({
-  name: "index"
+const lineOption = ref({
+  title: {
+    text: 'Stacked Line'
+  },
+  tooltip: {
+    trigger: 'axis'
+  },
+  xAxis: {
+    type: 'category',
+    data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+  },
+  yAxis: {
+    type: 'value'
+  },
+  series: [
+    {
+      data: [820, 932, 901, 934, 1290, 1330, 1320],
+      type: 'line',
+      smooth: true
+    }
+  ]
 });
 </script>
 
 <style lang="scss" scoped>
 .home {
-  padding: 40px;
+  padding: 10px;
   font-size: 30px;
   font-weight: bold;
+}
+
+.lineChart {
+  width: 100%;
+  height: 400px;
 }
 </style>

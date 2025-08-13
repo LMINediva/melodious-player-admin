@@ -10,6 +10,8 @@ import '@/router/permission.js';
 // 国际化中文
 import zhCn from 'element-plus/es/locale/lang/zh-cn'
 import SvgIcon from '@/icons';
+import ECharts from 'vue-echarts';
+import 'echarts';
 
 const app = createApp(App);
 
@@ -21,4 +23,5 @@ app.use(ElementPlus, {
 app.use(store);
 app.use(router);
 app.use(ElementPlus);
+app.component('ECharts', ECharts);
 app.mount('#app');
