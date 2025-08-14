@@ -17,7 +17,11 @@
       <el-table-column prop="type" label="音乐类型" width="80" align="center"/>
       <el-table-column prop="title" label="音乐名" width="100" align="center"/>
       <el-table-column prop="artistName" label="歌手名称" width="100" align="center"/>
-      <el-table-column prop="description" label="描述" width="200" align="center"/>
+      <el-table-column prop="description" label="描述" width="200" align="center">
+        <template v-slot="scope">
+          <p class="cell-overflow-ellipsis">{{ scope.row.description }}</p>
+        </template>
+      </el-table-column>
       <el-table-column prop="posterPic" label="海报图片" width="80" align="center">
         <template v-slot="scope">
           <img :src="getServerUrl() + 'image/musicPicture/' + scope.row.posterPic" width="50" height="50"
@@ -220,5 +224,11 @@ const stateFormat = (row, column) => {
 
 .el-tag--small {
   margin-left: 5px;
+}
+
+.cell-overflow-ellipsis {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 </style>

@@ -30,7 +30,11 @@
           </el-text>
         </template>
       </el-table-column>
-      <el-table-column prop="description" label="描述" width="200" align="center"/>
+      <el-table-column prop="description" label="描述" width="200" align="center">
+        <template v-slot="scope">
+          <p class="cell-overflow-ellipsis">{{ scope.row.description }}</p>
+        </template>
+      </el-table-column>
       <el-table-column prop="category" label="类型" width="100" align="center"/>
       <el-table-column prop="status" label="状态" width="120" align="center" :formatter="stateFormat"/>
       <el-table-column prop="totalViews" label="总浏览量" width="100" align="center"/>
@@ -200,5 +204,11 @@ const formatDateTime = (row, column, cellValue, index) => {
 
 .el-tag--small {
   margin-left: 5px;
+}
+
+.cell-overflow-ellipsis {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 </style>

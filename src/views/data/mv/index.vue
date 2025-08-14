@@ -15,7 +15,11 @@
     <el-table :data="tableData" stripe style="width: 100%" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55"/>
       <el-table-column prop="title" label="MV名" width="100" align="center"/>
-      <el-table-column prop="description" label="描述" width="200" align="center"/>
+      <el-table-column prop="description" label="描述" width="200" align="center">
+        <template v-slot="scope">
+          <p class="cell-overflow-ellipsis">{{ scope.row.description }}</p>
+        </template>
+      </el-table-column>
       <el-table-column prop="artistName" label="歌手名称" width="100" align="center"/>
       <el-table-column prop="posterPic" label="海报图片" width="80" align="center">
         <template v-slot="scope">
@@ -224,5 +228,11 @@ const formatDateTime = (row, column, cellValue, index) => {
 
 .el-tag--small {
   margin-left: 5px;
+}
+
+.cell-overflow-ellipsis {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 </style>
