@@ -33,8 +33,8 @@
                      inactive-text="禁用" active-value="0" inactive-value="1"></el-switch>
         </template>
       </el-table-column>
-      <el-table-column prop="createTime" label="创建时间" width="200" align="center"/>
-      <el-table-column prop="loginDate" label="最后登录时间" width="200" align="center"/>
+      <el-table-column prop="createTime" label="创建时间" width="200" align="center" :formatter="formatDateTime"/>
+      <el-table-column prop="loginDate" label="最后登录时间" width="200" align="center" :formatter="formatDateTime"/>
       <el-table-column prop="remark" label="备注"/>
       <el-table-column prop="action" label="操作" width="400" fixed="right" align="center">
         <template v-slot="scope">
@@ -81,6 +81,7 @@ import {Search, Delete, DocumentAdd, Edit, Tools, RefreshRight} from '@element-p
 import Dialog from './components/dialog';
 import {ElMessage, ElMessageBox} from 'element-plus';
 import RoleDialog from './components/roleDialog';
+import moment from 'moment-timezone';
 
 const tableData = ref([]);
 const total = ref(0);
@@ -196,6 +197,13 @@ const statusChangeHandle = async (row) => {
     });
     initUserList();
   }
+};
+
+const formatDateTime = (row, column, cellValue, index) => {
+  if (!cellValue) {
+    return '';
+  }
+  return moment(cellValue).format("YYYY-MM-DD HH:mm:ss");
 };
 </script>
 

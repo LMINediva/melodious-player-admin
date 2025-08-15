@@ -3,22 +3,24 @@
     <el-row :gutter="10">
       <el-col :span="12">
         <span>系统公告</span>
-        <el-collapse v-model="activeName" accordion>
-          <el-collapse-item
-              v-for="item in noticeData"
-              :key="item.id"
-              :title="item.name"
-              :name="item.id">
-            <div class="notice">
-              <strong>公告内容：</strong>
-              {{ item.content }}
-            </div>
-            <div class="notice">
-              <strong>发布时间：</strong>
-              {{ item.pubDate }}
-            </div>
-          </el-collapse-item>
-        </el-collapse>
+        <el-scrollbar class="notice">
+          <el-collapse v-model="activeName" class="notice-collapse" accordion>
+            <el-collapse-item
+                v-for="item in noticeData"
+                :key="item.id"
+                :title="item.title"
+                :name="item.id">
+              <div class="notice-item">
+                <strong>公告内容：</strong>
+                {{ item.content }}
+              </div>
+              <div class="notice-item">
+                <strong>发布时间：</strong>
+                {{ formatDateTime(item.publishTime) }}
+              </div>
+            </el-collapse-item>
+          </el-collapse>
+        </el-scrollbar>
       </el-col>
       <el-col :span="4" class="statistic">
         <el-statistic title="用户数量" :value="268500"/>
@@ -43,14 +45,24 @@
 
 <script setup>
 import {defineComponent, ref} from 'vue';
+import requestUtil from "@/util/request";
+import moment from "moment-timezone";
 
-const noticeData = [
-  {id: 1, name: "公告标题1", content: "公告内容1", pubDate: "2024-04-11"},
-  {id: 2, name: "公告标题2", content: "公告内容2", pubDate: "2024-04-11"},
-  {id: 3, name: "公告标题3", content: "公告内容3", pubDate: "2024-04-11"},
-  {id: 4, name: "公告标题4", content: "公告内容4", pubDate: "2024-04-11"},
-  {id: 5, name: "公告标题5", content: "公告内容5", pubDate: "2024-04-11"},
-];
+const noticeData = ref([]);
+const total = ref(0);
+const queryForm = ref({
+  query: '',
+  pageNum: 1,
+  pageSize: 10
+});
+
+const initNoticeList = async () => {
+  const res = await requestUtil.post("sys/notice/list", queryForm.value);
+  noticeData.value = res.data.noticeList;
+  total.value = res.data.total;
+};
+
+initNoticeList();
 
 const activeName = ref(noticeData.length > 0 ? noticeData[0].id : "");
 
@@ -110,6 +122,13 @@ const pieOption = ref({
     }
   ]
 });
+
+const formatDateTime = (cellValue) => {
+  if (!cellValue) {
+    return '';
+  }
+  return moment(cellValue).format("YYYY-MM-DD HH:mm:ss");
+};
 </script>
 
 <style lang="scss" scoped>
@@ -118,6 +137,15 @@ const pieOption = ref({
 }
 
 .notice {
+  height: 250px;
+  margin-top: 10px;
+}
+
+.notice-collapse {
+  width: 98%;
+}
+
+.notice-item {
   padding: 0 20px;
 }
 

@@ -201,6 +201,9 @@ const stateFormat = (row, column) => {
 };
 
 const formatDateTime = (row, column, cellValue, index) => {
+  if (!cellValue) {
+    return '';
+  }
   return moment(cellValue).format("YYYY-MM-DD HH:mm:ss");
 };
 </script>
