@@ -23,13 +23,13 @@
         </el-scrollbar>
       </el-col>
       <el-col :span="4" class="statistic">
-        <el-statistic title="用户数量" :value="268500"/>
+        <el-statistic title="用户数量" :value="userQuantity"/>
       </el-col>
       <el-col :span="4" class="statistic">
-        <el-statistic title="音乐数量" :value="172000"/>
+        <el-statistic title="音乐数量" :value="musicQuantity"/>
       </el-col>
       <el-col :span="4" class="statistic">
-        <el-statistic title="MV数量" :value="123213"/>
+        <el-statistic title="MV数量" :value="mvQuantity"/>
       </el-col>
     </el-row>
     <el-row :gutter="10" class="row">
@@ -56,13 +56,31 @@ const queryForm = ref({
   pageSize: 10
 });
 
-const initNoticeList = async () => {
+const userQuantity = ref(0);
+const musicQuantity = ref(0);
+const mvQuantity = ref(0);
+const listQuantity = ref(0);
+const pastYear = ref([]);
+const pastUserQuantity = ref([]);
+
+const initData = async () => {
   const res = await requestUtil.post("sys/notice/list", queryForm.value);
   noticeData.value = res.data.noticeList;
   total.value = res.data.total;
+  const userRes = await requestUtil.get("sys/user/total");
+  userQuantity.value = userRes.data.total;
+  const musicRes = await requestUtil.get("data/music/total");
+  musicQuantity.value = musicRes.data.total;
+  const mvRes = await requestUtil.get("data/mv/total");
+  mvQuantity.value = mvRes.data.total;
+  const pastUserRes = await requestUtil.get("sys/user/pastUserQuantity");
+  pastYear.value = pastUserRes.data.pastYear;
+  pastUserQuantity.value = pastUserRes.data.pastUserQuantity;
+  const musicListRes = await requestUtil.get("data/list/total");
+  listQuantity.value = musicListRes.data.total;
 };
 
-initNoticeList();
+initData();
 
 const activeName = ref(noticeData.length > 0 ? noticeData[0].id : "");
 
@@ -75,14 +93,14 @@ const lineOption = ref({
   },
   xAxis: {
     type: 'category',
-    data: ['2019', '2020', '2021', '2022', '2023', '2024', '2025']
+    data: pastYear
   },
   yAxis: {
     type: 'value'
   },
   series: [
     {
-      data: [820, 932, 901, 934, 1290, 1330, 1320],
+      data: pastUserQuantity,
       type: 'line',
       smooth: true
     }
@@ -92,7 +110,9 @@ const lineOption = ref({
 const pieOption = ref({
   title: {
     text: '音乐类型数量',
-    subtext: '截至到2025年8月14日',
+    subtext: '截至到' + new Date().getFullYear() + '年'
+        + String(new Date().getMonth() + 1).padStart(2, '0') + '月'
+        + String(new Date().getDate()).padStart(2, '0') + '日',
     left: 'center'
   },
   tooltip: {
@@ -108,9 +128,9 @@ const pieOption = ref({
       type: 'pie',
       radius: '50%',
       data: [
-        {value: 1048, name: '音乐'},
-        {value: 735, name: 'MV'},
-        {value: 580, name: '悦单'}
+        {value: musicQuantity, name: '音乐'},
+        {value: mvQuantity, name: 'MV'},
+        {value: listQuantity, name: '悦单'}
       ],
       emphasis: {
         itemStyle: {
