@@ -27,6 +27,10 @@
           </template>
         </el-input>
       </el-form-item>
+      <el-form-item prop="code">
+        <el-input v-model="code" maxlength="5"/>
+        <el-image :src="getServerUrl() + 'captcha'"/>
+      </el-form-item>
       <el-checkbox v-model="loginForm.rememberMe" style="margin:0px 0px 25px 0px;">记住密码</el-checkbox>
       <el-form-item style="width:100%;">
         <el-button
@@ -47,7 +51,7 @@
 
 <script setup>
 import {ref} from 'vue';
-import requestUtil from '@/util/request';
+import requestUtil, {getServerUrl} from '@/util/request';
 import store from '@/store';
 import qs from 'qs';
 import {ElMessage} from 'element-plus';
@@ -81,7 +85,7 @@ const handleLogin = () => {
       }
       let result = await requestUtil.post("login?" + qs.stringify(loginForm.value));
       let data = result.data;
-      if (data.code == 200) {
+      if (data.code === 200) {
         const token = data.authorization;
         const menuList = data.menuList;
         const currentUser = data.currentUser;
