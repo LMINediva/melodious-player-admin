@@ -28,8 +28,23 @@
         </el-input>
       </el-form-item>
       <el-form-item prop="code">
-        <el-input v-model="code" maxlength="5"/>
-        <el-image :src="getServerUrl() + 'captcha'"/>
+        <el-row :gutter="20">
+          <el-col :span="16">
+            <el-input
+                v-model="loginForm.code"
+                type="text"
+                size="large"
+                auto-complete="off"
+                placeholder="验证码">
+              <template #prefix>
+                <svg-icon icon="verificationCode"/>
+              </template>
+            </el-input>
+          </el-col>
+          <el-col :span="8">
+            <el-image :src="captchaImage" @click="refreshCaptchaImage"/>
+          </el-col>
+        </el-row>
       </el-form-item>
       <el-checkbox v-model="loginForm.rememberMe" style="margin:0px 0px 25px 0px;">记住密码</el-checkbox>
       <el-form-item style="width:100%;">
@@ -63,39 +78,51 @@ const loginRef = ref(null);
 const loginForm = ref({
   username: "",
   password: "",
+  code: "",
   rememberMe: false
 });
+const captchaImage = ref(getServerUrl() + 'captcha');
 const loginRules = {
   username: [{required: true, trigger: "blur", message: "请输入您的账号"}],
   password: [{required: true, trigger: "blur", message: "请输入您的密码"}]
 };
+
+const refreshCaptchaImage = () => {
+  captchaImage.value = getServerUrl() + 'captcha?d=' + new Date() * 1;
+}
+
 const handleLogin = () => {
   loginRef.value.validate(async (valid) => {
     if (valid) {
-      // 勾选了记住密码，在cookie中设置记住用户名和密码
-      if (loginForm.value.rememberMe) {
-        Cookies.set("username", loginForm.value.username, {expires: 30});
-        Cookies.set("password", encrypt(loginForm.value.password), {expires: 30});
-        Cookies.set("rememberMe", loginForm.value.rememberMe, {expires: 30});
+      const res = await requestUtil.post("compareCode", {code: loginForm.value.code});
+      if (res.data.code === 200) {
+        // 勾选了记住密码，在cookie中设置记住用户名和密码
+        if (loginForm.value.rememberMe) {
+          Cookies.set("username", loginForm.value.username, {expires: 30});
+          Cookies.set("password", encrypt(loginForm.value.password), {expires: 30});
+          Cookies.set("rememberMe", loginForm.value.rememberMe, {expires: 30});
+        } else {
+          // 否则移除
+          Cookies.remove("username");
+          Cookies.remove("password");
+          Cookies.remove("rememberMe");
+        }
+        let result = await requestUtil.post("login?" + qs.stringify(loginForm.value));
+        let data = result.data;
+        if (data.code === 200) {
+          const token = data.authorization;
+          const menuList = data.menuList;
+          const currentUser = data.currentUser;
+          console.log("currentUser = " + currentUser);
+          store.commit('SET_MENULIST', menuList);
+          store.commit('SET_TOKEN', token);
+          store.commit('SET_USERINFO', currentUser);
+          router.replace("/");
+        } else {
+          ElMessage.error(data.msg);
+        }
       } else {
-        // 否则移除
-        Cookies.remove("username");
-        Cookies.remove("password");
-        Cookies.remove("rememberMe");
-      }
-      let result = await requestUtil.post("login?" + qs.stringify(loginForm.value));
-      let data = result.data;
-      if (data.code === 200) {
-        const token = data.authorization;
-        const menuList = data.menuList;
-        const currentUser = data.currentUser;
-        console.log("currentUser = " + currentUser);
-        store.commit('SET_MENULIST', menuList);
-        store.commit('SET_TOKEN', token);
-        store.commit('SET_USERINFO', currentUser);
-        router.replace("/");
-      } else {
-        ElMessage.error(data.msg);
+        ElMessage.error(res.data.msg);
       }
     } else {
       console.log("验证失败");
