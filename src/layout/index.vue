@@ -2,19 +2,12 @@
   <div class="app-wrapper">
     <el-container>
       <el-aside :width="isCollapse ? '64px' : '200px'" class="sidebar-container">
-        <div class="toggle-menu" @click="toggleCollapse">
-          <el-icon v-if="isCollapse" :size="25">
-            <Expand/>
-          </el-icon>
-          <el-icon v-else :size="25">
-            <Fold/>
-          </el-icon>
-        </div>
+        <div class="title"><span v-if="!isCollapse">悦听影音后台管理系统</span></div>
         <Menu :collapse="isCollapse"/>
       </el-aside>
       <el-container>
         <el-header>
-          <Header/>
+          <Header @updateValue="initCollapse"/>
         </el-header>
         <el-main>
           <Tabs/>
@@ -33,14 +26,13 @@ import Menu from '@/layout/menu';
 import Header from '@/layout/header';
 import Footer from '@/layout/footer';
 import Tabs from '@/layout/tabs';
-import {Fold, Expand} from '@element-plus/icons-vue';
 import {ref} from 'vue';
 
 const isCollapse = ref(false);
 
-const toggleCollapse = () => {
-  isCollapse.value = !isCollapse.value;
-};
+const initCollapse = (value) => {
+  isCollapse.value = value;
+}
 </script>
 
 <style scoped>
@@ -69,15 +61,13 @@ const toggleCollapse = () => {
   border-right-width: 0px
 }
 
-.toggle-menu {
+.title {
   background: rgb(65, 109, 131);
   text-align: center;
   color: white;
-  cursor: pointer;
+  height: 60px;
+  line-height: 60px;
+  font-size: medium;
+  font-weight: bold;
 }
-
-.toggle-menu:hover {
-  background: rgb(76, 127, 152);
-}
-
 </style>

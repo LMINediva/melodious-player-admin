@@ -1,5 +1,13 @@
 <template>
   <div class="navbar">
+    <div class="toggle-menu" @click="toggleCollapse">
+      <el-icon v-if="isCollapse" :size="25">
+        <Expand/>
+      </el-icon>
+      <el-icon v-else :size="25">
+        <Fold/>
+      </el-icon>
+    </div>
     <Breadcrumb/>
     <div class="navbar-right">
       <Avatar/>
@@ -10,6 +18,17 @@
 <script setup>
 import Breadcrumb from './components/breadcrumb.vue';
 import Avatar from './components/avatar.vue';
+import {Expand, Fold} from "@element-plus/icons-vue";
+import {ref, defineEmits} from "vue";
+
+const isCollapse = ref(false);
+
+const emits = defineEmits(['updateValue', 'initCollapse']);
+
+const toggleCollapse = () => {
+  isCollapse.value = !isCollapse.value;
+  emits('updateValue', isCollapse.value);
+};
 </script>
 
 <style lang="scss" scoped>
@@ -40,5 +59,15 @@ import Avatar from './components/avatar.vue';
       cursor: pointer;
     }
   }
+}
+
+.toggle-menu {
+  text-align: center;
+  color: black;
+  cursor: pointer;
+}
+
+.toggle-menu:hover {
+  color: rgb(76, 127, 152);
 }
 </style>

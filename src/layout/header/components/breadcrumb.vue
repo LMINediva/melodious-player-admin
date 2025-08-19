@@ -1,5 +1,5 @@
 <template>
-  <el-icon>
+  <el-icon class="icon">
     <HomeFilled/>
   </el-icon>
   <el-breadcrumb separator="/">
@@ -34,5 +34,9 @@ watch(route, () => {
 .root {
   color: #666;
   font-weight: 600;
+}
+
+.icon {
+  margin-left: 10px;
 }
 </style>
