@@ -57,6 +57,7 @@ const props = defineProps(
 );
 
 const menuList = ref(store.getters.GET_MENULIST);
+
 const openTab = (item) => {
   store.commit('ADD_TABS', item);
 };
