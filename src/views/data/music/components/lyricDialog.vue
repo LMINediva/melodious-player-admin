@@ -67,7 +67,7 @@ const lyric = ref("");
 
 const initFormData = async (id) => {
   const res = await requestUtil.get("data/music/" + id);
-  form.value = res.data.homeItem;
+  form.value = res.data.music;
   const lyricRes = await requestUtil.get("audio/lyric/" + form.value.lyric);
   lyric.value = lyricRes.data;
 };

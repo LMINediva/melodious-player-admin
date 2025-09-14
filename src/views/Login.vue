@@ -52,7 +52,8 @@
             size="large"
             type="primary"
             style="width:100%;"
-            @click.prevent="handleLogin">
+            @click.prevent="handleLogin"
+            @keydown.enter="keyDown">
           <span>登 录</span>
         </el-button>
       </el-form-item>
@@ -65,7 +66,7 @@
 </template>
 
 <script setup>
-import {ref} from 'vue';
+import {onMounted, onUnmounted, ref} from 'vue';
 import requestUtil, {getServerUrl} from '@/util/request';
 import store from '@/store';
 import qs from 'qs';
@@ -142,6 +143,23 @@ function getCookie() {
 }
 
 getCookie();
+
+//点击回车键登录
+const keyDown = (e) => {
+  if (e.keyCode === 13 || e.keyCode === 100) {
+    handleLogin()
+  }
+}
+
+onMounted(() => {
+  //绑定监听事件
+  window.addEventListener('keydown', keyDown)
+});
+
+onUnmounted(() => {
+  //销毁事件
+  window.removeEventListener('keydown', keyDown, false)
+});
 
 </script>
 

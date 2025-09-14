@@ -244,7 +244,7 @@ const formRef = ref(null);
 
 const initFormData = async (id) => {
   const res = await requestUtil.get("data/music/" + id);
-  form.value = res.data.homeItem;
+  form.value = res.data.music;
   posterPicUrl.value = getServerUrl() + 'image/musicPicture/' + form.value.posterPic;
   thumbnailPicUrl.value = getServerUrl() + 'image/musicPicture/' + form.value.thumbnailPic;
   if (form.value.lyric !== null) {
