@@ -31,7 +31,7 @@
               </li>
               <li class="list-group-item">
                 <svg-icon icon="date"/>&nbsp;&nbsp;创建日期
-                <div class="pull-right">{{ formatDate(currentUser.loginDate) }}</div>
+                <div class="pull-right">{{ formatDate(currentUser.createTime) }}</div>
               </li>
             </ul>
           </div>

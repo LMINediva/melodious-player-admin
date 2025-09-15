@@ -151,7 +151,8 @@ const form = ref({
   uhdVideoSize: 0,
   duration: Date,
   status: 0,
-  oldMvAreaId: -1
+  oldMvAreaId: -1,
+  sysUser: {}
 });
 
 const headers = ref({
@@ -164,6 +165,7 @@ const url = ref("");
 const videoName = ref("");
 const videoPlayer = ref(null);
 const areas = ref([]);
+const currentUser = ref(store.getters.GET_USERINFO);
 
 const handlePosterPicSuccess = (res) => {
   posterPicUrl.value = getServerUrl() + res.data.src;
@@ -290,7 +292,8 @@ watch(
           uhdVideoSize: 0,
           duration: Date,
           status: 0,
-          oldMvAreaId: -1
+          oldMvAreaId: -1,
+          sysUser: {}
         };
         url.value = null;
         posterPicUrl.value = null;
@@ -346,6 +349,7 @@ const handleConfirm = () => {
         form.value.id = null;
         form.value.hdUrl = videoName;
         form.value.uhdUrl = videoName;
+        form.value.sysUser = currentUser;
       }
       let result = await requestUtil.post("data/mv/save", form.value);
       let data = result.data;

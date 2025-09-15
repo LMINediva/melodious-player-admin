@@ -141,7 +141,8 @@ const form = ref({
   musicSize: 0,
   hdMusicSize: 0,
   uhdMusicSize: 0,
-  status: 0
+  status: 0,
+  sysUser: {}
 });
 
 const headers = ref({
@@ -153,6 +154,7 @@ const thumbnailPicUrl = ref("");
 const url = ref("");
 const audioName = ref("");
 const lyricUrl = ref("");
+const currentUser = ref(store.getters.GET_USERINFO);
 
 const handlePosterPicSuccess = (res) => {
   posterPicUrl.value = getServerUrl() + res.data.src;
@@ -278,7 +280,8 @@ watch(
           musicSize: 0,
           hdMusicSize: 0,
           uhdMusicSize: 0,
-          status: 0
+          status: 0,
+          sysUser: {}
         };
         url.value = null;
         posterPicUrl.value = null;
@@ -345,6 +348,7 @@ const handleConfirm = () => {
         form.value.id = null;
         form.value.hdUrl = audioName;
         form.value.uhdUrl = audioName;
+        form.value.sysUser = currentUser;
       }
       let result = await requestUtil.post("data/music/save", form.value);
       let data = result.data;

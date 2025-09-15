@@ -34,6 +34,7 @@
                alt="缩略图"/>
         </template>
       </el-table-column>
+      <el-table-column prop="sysUser.username" label="创建用户" width="100" align="center"/>
       <el-table-column label="歌词" width="100" align="center">
         <template v-slot="scope">
           <el-text v-if="scope.row.lyric" class="mx-1" type="primary"

@@ -33,6 +33,7 @@
                alt="缩略图"/>
         </template>
       </el-table-column>
+      <el-table-column prop="sysUser.username" label="创建用户" width="100" align="center"/>
       <el-table-column prop="regdate" label="发行时间" width="100" align="center" :formatter="formatDateTime"/>
       <el-table-column prop="videoSourceTypeName" label="视频类型" width="100" align="center"/>
       <el-table-column prop="mvArea.name" label="区域" width="100" align="center"/>
