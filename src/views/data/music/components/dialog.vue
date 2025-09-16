@@ -291,10 +291,32 @@ watch(
     }
 );
 
+const isNotEmpty = (value) => {
+  return value !== null && value !== undefined && value !== '';
+}
+
+const handleDeleteUploadFileCache = async () => {
+  let result = await requestUtil.post("data/music/deleteUploadFileCache", form.value);
+  let data = result.data;
+  if (data.code === 200) {
+    form.value.posterPic = "";
+    form.value.thumbnailPic = "";
+    form.value.url = "";
+    form.value.lyric = "";
+    ElMessage.success("文件上传缓存删除成功！");
+  } else {
+    ElMessage.error(data.msg);
+  }
+}
+
 const emits = defineEmits(['update:modelValue', 'initMusicList']);
 
 const handleClose = () => {
   emits('update:modelValue', false);
+  if (isNotEmpty(form.value.posterPic) || isNotEmpty(form.value.thumbnailPic)
+      || isNotEmpty(form.value.url) || isNotEmpty(form.value.lyric)) {
+    handleDeleteUploadFileCache();
+  }
 };
 
 const handleConfirmUploadPosterPicture = async () => {

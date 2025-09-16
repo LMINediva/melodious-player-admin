@@ -268,10 +268,28 @@ watch(
     }
 );
 
+const isNotEmpty = (value) => {
+  return value !== null && value !== undefined && value !== '';
+}
+
+const handleDeleteUploadFileCache = async () => {
+  let result = await requestUtil.post("data/list/deleteUploadFileCache", form.value);
+  let data = result.data;
+  if (data.code === 200) {
+    form.value.thumbnailPic = "";
+    ElMessage.success("文件上传缓存删除成功！");
+  } else {
+    ElMessage.error(data.msg);
+  }
+}
+
 const emits = defineEmits(['update:modelValue', 'initList']);
 
 const handleClose = () => {
   emits('update:modelValue', false);
+  if (isNotEmpty(form.value.thumbnailPic)) {
+    handleDeleteUploadFileCache();
+  }
 };
 
 const handleConfirmUploadThumbnailPicture = async () => {
