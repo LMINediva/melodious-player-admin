@@ -324,9 +324,11 @@ const emits = defineEmits(['update:modelValue', 'initMVList']);
 
 const handleClose = () => {
   emits('update:modelValue', false);
-  if (isNotEmpty(form.value.posterPic) || isNotEmpty(form.value.thumbnailPic)
-      || isNotEmpty(form.value.url)) {
-    handleDeleteUploadFileCache();
+  if (form.value.id === -1) {
+    if (isNotEmpty(form.value.posterPic) || isNotEmpty(form.value.thumbnailPic)
+        || isNotEmpty(form.value.url)) {
+      handleDeleteUploadFileCache();
+    }
   }
 };
 
