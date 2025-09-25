@@ -12,6 +12,9 @@
       <el-form-item label="MV名" prop="title">
         <el-input v-model="form.title"/>
       </el-form-item>
+      <el-form-item label="歌手姓名" prop="artistName">
+        <el-input v-model="form.artistName"/>
+      </el-form-item>
       <el-form-item label="描述" prop="description">
         <el-mention v-model="form.description" type="textarea"/>
       </el-form-item>
@@ -23,9 +26,6 @@
               :label="area.name"
               :value="area.id"/>
         </el-select>
-      </el-form-item>
-      <el-form-item label="歌手姓名" prop="artistName">
-        <el-input v-model="form.artistName"/>
       </el-form-item>
       <el-form-item label="海报图片" prop="posterPic">
         <el-upload
@@ -57,15 +57,6 @@
         </el-upload>
         <el-button @click="handleConfirmUploadThumbnailPicture">确认更换</el-button>
       </el-form-item>
-      <el-form-item label="发行时间" prop="regdate">
-        <el-date-picker
-            v-model="form.regdate"
-            type="datetime"
-            placeholder="请选择一个日期"
-            format="YYYY-MM-DD HH:mm:ss"
-            date-format="MMM DD, YYYY"
-            time-format="HH:mm"/>
-      </el-form-item>
       <el-form-item label="MV" prop="url">
         <el-upload
             :headers="headers"
@@ -83,6 +74,15 @@
           </el-icon>
         </el-upload>
         <el-button @click="handleConfirmUploadVideo">确认更换</el-button>
+      </el-form-item>
+      <el-form-item label="发行时间" prop="regdate">
+        <el-date-picker
+            v-model="form.regdate"
+            type="datetime"
+            placeholder="请选择一个日期"
+            format="YYYY-MM-DD HH:mm:ss"
+            date-format="MMM DD, YYYY"
+            time-format="HH:mm"/>
       </el-form-item>
       <el-form-item label="状态" prop="status">
         <el-radio-group v-model="form.status">

@@ -12,6 +12,9 @@
       <el-form-item label="悦单名" prop="title">
         <el-input v-model="form.title"/>
       </el-form-item>
+      <el-form-item label="描述" prop="description">
+        <el-mention v-model="form.description" type="textarea"/>
+      </el-form-item>
       <el-form-item label="缩略图" prop="thumbnailPic">
         <el-upload
             :headers="headers"
@@ -77,24 +80,6 @@
             @current-change="handleCurrentChange"
         />
       </el-form-item>
-      <el-form-item label="描述" prop="description">
-        <el-mention v-model="form.description" type="textarea"/>
-      </el-form-item>
-      <el-form-item label="状态" prop="status">
-        <el-radio-group v-model="form.status">
-          <el-radio :value="0">正常</el-radio>
-          <el-radio :value="1">禁用</el-radio>
-        </el-radio-group>
-      </el-form-item>
-      <el-form-item label="创建时间" prop="createdTime">
-        <el-date-picker
-            v-model="form.createdTime"
-            type="datetime"
-            placeholder="请选择一个日期"
-            format="YYYY-MM-DD HH:mm:ss"
-            date-format="MMM DD, YYYY"
-            time-format="HH:mm"/>
-      </el-form-item>
       <el-form-item label="积分" prop="integral">
         <el-input v-model="form.integral"/>
       </el-form-item>
@@ -106,6 +91,21 @@
       </el-form-item>
       <el-form-item label="排名" prop="rank">
         <el-input v-model="form.rank"/>
+      </el-form-item>
+      <el-form-item label="创建时间" prop="createdTime">
+        <el-date-picker
+            v-model="form.createdTime"
+            type="datetime"
+            placeholder="请选择一个日期"
+            format="YYYY-MM-DD HH:mm:ss"
+            date-format="MMM DD, YYYY"
+            time-format="HH:mm"/>
+      </el-form-item>
+      <el-form-item label="状态" prop="status">
+        <el-radio-group v-model="form.status">
+          <el-radio :value="0">正常</el-radio>
+          <el-radio :value="1">禁用</el-radio>
+        </el-radio-group>
       </el-form-item>
     </el-form>
     <template #footer>
