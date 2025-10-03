@@ -6,6 +6,7 @@ export default createStore({
         token: sessionStorage.getItem("token"),
         menuList: JSON.parse(sessionStorage.getItem("menuList")),
         userInfo: JSON.parse(sessionStorage.getItem("userInfo")),
+        userSelection: [],
         hasRoutes: false,
         editableTabsValue: '/index',
         editableTabs: [
@@ -24,6 +25,9 @@ export default createStore({
         },
         GET_USERINFO: state => {
             return state.userInfo;
+        },
+        GET_USER_SELECTION: state => {
+            return state.userSelection;
         }
     },
     mutations: {
@@ -38,6 +42,9 @@ export default createStore({
         SET_USERINFO: (state, userInfo) => {
             state.userInfo = userInfo;
             sessionStorage.setItem("userInfo", JSON.stringify(userInfo));
+        },
+        SET_USER_SELECTION: (state, selection) => {
+            state.userSelection.push(selection);
         },
         SET_ROUTES_STATE: (state, hasRoutes) => {
             state.hasRoutes = hasRoutes;

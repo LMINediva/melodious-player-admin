@@ -57,7 +57,7 @@
             </template>
           </el-table-column>
         </el-table>
-        <el-table v-else :data="tableData" stripe style="width: 100%"
+        <el-table v-else ref="multipleTableRef" :data="tableData" stripe style="width: 100%"
                   @selection-change="handleSelectionChange">
           <el-table-column type="selection" width="55"/>
           <el-table-column prop="title" label="MV名" width="100" align="center"/>
@@ -97,9 +97,7 @@
             v-model="form.createdTime"
             type="datetime"
             placeholder="请选择一个日期"
-            format="YYYY-MM-DD HH:mm:ss"
-            date-format="MMM DD, YYYY"
-            time-format="HH:mm"/>
+            value-format="YYYY-MM-DD HH:mm:ss"/>
       </el-form-item>
       <el-form-item label="状态" prop="status">
         <el-radio-group v-model="form.status">
@@ -114,8 +112,6 @@
         <el-button @click="handleClose">取消</el-button>
       </span>
     </template>
-    <AddMVDialog v-model="dialogVisible" :dialogVisible="dialogVisible" :dialogTitle="dialogTitle"
-                 :mvs="mvs" @updateSelection="handleSelection" @closeDialog="handleCloseDialog"/>
   </el-dialog>
 </template>
 
@@ -125,7 +121,7 @@ import requestUtil, {getServerUrl} from '@/util/request';
 import {ElMessage} from 'element-plus';
 import {Delete, DocumentAdd, Plus} from "@element-plus/icons-vue";
 import store from "@/store";
-import AddMVDialog from "./dialog/addMVDialog.vue";
+import moment from "moment-timezone";
 
 const props = defineProps(
     {
@@ -185,6 +181,8 @@ const id = ref(-1);
 const dialogVisible = ref(false);
 const dialogTitle = ref("");
 const mvs = ref([]);
+const multipleSelection = ref([]);
+const multipleTableRef = ref(null);
 const currentUser = ref(store.getters.GET_USERINFO);
 
 const handleThumbnailPicSuccess = (res) => {
@@ -239,6 +237,7 @@ watch(
       let id = props.id;
       console.log("id=" + id);
       if (id !== -1) {
+        form.value.updateTime = moment(new Date()).format("YYYY-MM-DD HH:mm:ss");
         initFormData(id);
       } else {
         form.value = {
@@ -261,8 +260,7 @@ watch(
           sysUser: {}
         };
         thumbnailPicUrl.value = null;
-        form.value.updateTime = new Date();
-        form.value.createdTime = new Date();
+        form.value.createdTime = moment(new Date()).format("YYYY-MM-DD HH:mm:ss");
         initMVList();
       }
     }
@@ -314,6 +312,9 @@ const handleSelectionChange = (selection) => {
 const handleSizeChange = (pageSize) => {
   queryForm.value.pageNum = 1;
   queryForm.value.pageSize = pageSize;
+  if (form.value.mvList.length > 0) {
+    multipleSelection.value = multipleSelection.value.concat(form.value.mvList);
+  }
   if (form.value.id === -1) {
     initMVList();
   }
@@ -321,6 +322,9 @@ const handleSizeChange = (pageSize) => {
 
 const handleCurrentChange = (pageNum) => {
   queryForm.value.pageNum = pageNum;
+  if (form.value.mvList.length > 0) {
+    multipleSelection.value = multipleSelection.value.concat(form.value.mvList);
+  }
   if (form.value.id === -1) {
     initMVList();
   }
@@ -350,23 +354,19 @@ const handleDialogValue = () => {
   dialogVisible.value = true;
 };
 
-const handleSelection = (selection) => {
-  form.value.mvList = form.value.mvList.concat(selection);
-  mvs.value = mvs.value.concat(selection);
-  total.value = total.value + selection.length;
-  dialogVisible.value = false;
-};
-
-const handleCloseDialog = () => {
-  dialogVisible.value = false;
-};
-
 const handleConfirm = () => {
   formRef.value.validate(async (valid) => {
     if (valid) {
       if (form.value.id === -1) {
-        form.value.id = null;
-        form.value.sysUser = currentUser;
+        if (form.value.mvList.length > 0) {
+          form.value.id = null;
+          form.value.sysUser = currentUser;
+          multipleSelection.value = multipleSelection.value.concat(form.value.mvList);
+          form.value.mvList = multipleSelection.value;
+        } else {
+          ElMessage.error("MV数量不能为空！");
+          return;
+        }
       }
       form.value.videoCount = form.value.mvList.length;
       let result = await requestUtil.post("data/list/save", form.value);

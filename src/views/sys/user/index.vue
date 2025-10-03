@@ -14,6 +14,7 @@
     </el-row>
     <el-table :data="tableData" stripe style="width: 100%" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55"/>
+      t
       <el-table-column prop="avatar" label="头像" width="80" align="center">
         <template v-slot="scope">
           <img :src="getServerUrl()+'image/userAvatar/'+scope.row.avatar" width="50" height="50"/>

@@ -19,10 +19,10 @@
         <el-mention v-model="form.description" type="textarea"/>
       </el-form-item>
       <el-form-item label="区域" prop="mvArea.id">
-        <el-select v-model="form.mvArea.name">
+        <el-select v-model="form.mvArea.id">
           <el-option
               v-for="area in areas"
-              :key="area.name"
+              :key="area.id"
               :label="area.name"
               :value="area.id"/>
         </el-select>
@@ -80,9 +80,7 @@
             v-model="form.regdate"
             type="datetime"
             placeholder="请选择一个日期"
-            format="YYYY-MM-DD HH:mm:ss"
-            date-format="MMM DD, YYYY"
-            time-format="HH:mm"/>
+            value-format="YYYY-MM-DD HH:mm:ss"/>
       </el-form-item>
       <el-form-item label="状态" prop="status">
         <el-radio-group v-model="form.status">
@@ -135,7 +133,7 @@ const form = ref({
   artistName: '',
   description: '',
   mvArea: {
-    id: -1,
+    id: 1,
     name: '',
     code: ''
   },
@@ -276,7 +274,7 @@ watch(
           artistName: '',
           description: '',
           mvArea: {
-            id: -1,
+            id: 1,
             name: '',
             code: ''
           },
@@ -298,7 +296,7 @@ watch(
         url.value = null;
         posterPicUrl.value = null;
         thumbnailPicUrl.value = null;
-        form.value.regdate = new Date();
+        form.value.regdate = moment(new Date()).format("YYYY-MM-DD HH:mm:ss");
       }
     }
 );
