@@ -57,7 +57,7 @@
             </template>
           </el-table-column>
         </el-table>
-        <el-table v-else ref="multipleTableRef" :data="tableData" stripe style="width: 100%"
+        <el-table v-else ref="multipleTableRef" :data="tableData" row-key="id" stripe style="width: 100%"
                   @selection-change="handleSelectionChange">
           <el-table-column type="selection" width="55"/>
           <el-table-column prop="title" label="MV名" width="100" align="center"/>
@@ -116,7 +116,7 @@
 </template>
 
 <script setup>
-import {defineEmits, defineProps, ref, watch} from 'vue';
+import {defineEmits, defineProps, nextTick, ref, watch} from 'vue';
 import requestUtil, {getServerUrl} from '@/util/request';
 import {ElMessage} from 'element-plus';
 import {Delete, DocumentAdd, Plus} from "@element-plus/icons-vue";
@@ -284,6 +284,7 @@ const handleDeleteUploadFileCache = async () => {
 const emits = defineEmits(['update:modelValue', 'initList']);
 
 const handleClose = () => {
+  multipleSelection.value = [];
   emits('update:modelValue', false);
   if (form.value.id === -1) {
     if (isNotEmpty(form.value.thumbnailPic)) {
@@ -306,15 +307,19 @@ const handleConfirmUploadThumbnailPicture = async () => {
 const handleSelectionChange = (selection) => {
   console.log("勾选了");
   console.log(selection);
-  form.value.mvList = selection;
+  if (selection.length > 0) {
+    multipleSelection.value = [...multipleSelection.value, ...selection].reduce((acc, current) => {
+      if (!acc.includes(current)) {
+        acc.push(current);
+      }
+      return acc;
+    }, []);
+  }
 };
 
 const handleSizeChange = (pageSize) => {
   queryForm.value.pageNum = 1;
   queryForm.value.pageSize = pageSize;
-  if (form.value.mvList.length > 0) {
-    multipleSelection.value = multipleSelection.value.concat(form.value.mvList);
-  }
   if (form.value.id === -1) {
     initMVList();
   }
@@ -322,9 +327,6 @@ const handleSizeChange = (pageSize) => {
 
 const handleCurrentChange = (pageNum) => {
   queryForm.value.pageNum = pageNum;
-  if (form.value.mvList.length > 0) {
-    multipleSelection.value = multipleSelection.value.concat(form.value.mvList);
-  }
   if (form.value.id === -1) {
     initMVList();
   }
@@ -334,6 +336,13 @@ const initMVList = async () => {
   const res = await requestUtil.post("data/mv/list", queryForm.value);
   tableData.value = res.data.mvList;
   total.value = res.data.total;
+  await nextTick(() => {
+    if (multipleSelection.value.length > 0) {
+      multipleSelection.value.forEach((selection) => {
+        multipleTableRef.value.toggleRowSelection(selection, true);
+      });
+    }
+  });
 };
 
 const handleDelete = (id) => {
@@ -358,10 +367,9 @@ const handleConfirm = () => {
   formRef.value.validate(async (valid) => {
     if (valid) {
       if (form.value.id === -1) {
-        if (form.value.mvList.length > 0) {
+        if (multipleSelection.value.length > 0) {
           form.value.id = null;
           form.value.sysUser = currentUser;
-          multipleSelection.value = multipleSelection.value.concat(form.value.mvList);
           form.value.mvList = multipleSelection.value;
         } else {
           ElMessage.error("MV数量不能为空！");
