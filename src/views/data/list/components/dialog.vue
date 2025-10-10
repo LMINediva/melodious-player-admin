@@ -112,6 +112,8 @@
         <el-button @click="handleClose">取消</el-button>
       </span>
     </template>
+    <AddMVDialog v-model="dialogVisible" :dialogVisible="dialogVisible" :dialogTitle="dialogTitle"
+                 :mvs="mvs" @updateSelection="handleSelection" @closeDialog="handleCloseDialog"/>
   </el-dialog>
 </template>
 
@@ -121,6 +123,7 @@ import requestUtil, {getServerUrl} from '@/util/request';
 import {ElMessage} from 'element-plus';
 import {Delete, DocumentAdd, Plus} from "@element-plus/icons-vue";
 import store from "@/store";
+import AddMVDialog from "./dialog/addMVDialog.vue";
 import moment from "moment-timezone";
 
 const props = defineProps(
@@ -330,6 +333,17 @@ const handleCurrentChange = (pageNum) => {
   if (form.value.id === -1) {
     initMVList();
   }
+};
+
+const handleSelection = (selection) => {
+  form.value.mvList = form.value.mvList.concat(selection);
+  mvs.value = mvs.value.concat(selection);
+  total.value = total.value + selection.length;
+  dialogVisible.value = false;
+};
+
+const handleCloseDialog = () => {
+  dialogVisible.value = false;
 };
 
 const initMVList = async () => {
