@@ -39,7 +39,7 @@
       <el-table-column prop="status" label="状态" width="120" align="center" :formatter="stateFormat"/>
       <el-table-column prop="totalViews" label="总浏览量" width="100" align="center"/>
       <el-table-column prop="totalFavorites" label="点赞量" width="100" align="center"/>
-      <el-table-column prop="createdTime" label="创建时间" width="100" align="center" :formatter="formatDateTime"/>
+      <el-table-column prop="createTime" label="创建时间" width="100" align="center" :formatter="formatDateTime"/>
       <el-table-column prop="updateTime" label="更新时间" width="100" align="center" :formatter="formatDateTime"/>
       <el-table-column prop="integral" label="积分" width="100" align="center"/>
       <el-table-column prop="weekIntegral" label="周积分" width="100" align="center"/>

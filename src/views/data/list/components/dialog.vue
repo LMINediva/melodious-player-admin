@@ -15,6 +15,9 @@
       <el-form-item label="描述" prop="description">
         <el-mention v-model="form.description" type="textarea"/>
       </el-form-item>
+      <el-form-item label="类型" prop="category">
+        <el-input v-model="form.category" placeholder="如：华语流行音乐、说唱等"/>
+      </el-form-item>
       <el-form-item label="缩略图" prop="thumbnailPic">
         <el-upload
             :headers="headers"
@@ -92,9 +95,9 @@
       <el-form-item label="排名" prop="rank">
         <el-input v-model="form.rank"/>
       </el-form-item>
-      <el-form-item label="创建时间" prop="createdTime">
+      <el-form-item label="创建时间" prop="createTime">
         <el-date-picker
-            v-model="form.createdTime"
+            v-model="form.createTime"
             type="datetime"
             placeholder="请选择一个日期"
             value-format="YYYY-MM-DD HH:mm:ss"/>
@@ -158,7 +161,7 @@ const form = ref({
   totalViews: 0,
   totalFavorites: 0,
   updateTime: Date,
-  createdTime: Date,
+  createTime: Date,
   integral: 0,
   weekIntegral: 0,
   totalUser: 0,
@@ -223,7 +226,11 @@ const rules = ref({
     {required: true, message: '请输入悦单名'},
     {required: true, validator: checkTitle, trigger: "blur"}
   ],
-  description: [{required: true, message: "描述不能为空", trigger: "blur"}]
+  description: [{required: true, message: "描述不能为空", trigger: "blur"}],
+  category: [
+    {required: true, message: '请输入类型', trigger: "blur"},
+    {min: 2, max: 10, message: '类型长度在2到10个字符之间', trigger: 'blur'}
+  ]
 });
 
 const initFormData = async (id) => {
@@ -255,7 +262,7 @@ watch(
           totalViews: 0,
           totalFavorites: 0,
           updateTime: Date,
-          createdTime: Date,
+          createTime: Date,
           integral: 0,
           weekIntegral: 0,
           totalUser: 0,
@@ -263,7 +270,7 @@ watch(
           sysUser: {}
         };
         thumbnailPicUrl.value = null;
-        form.value.createdTime = moment(new Date()).format("YYYY-MM-DD HH:mm:ss");
+        form.value.createTime = moment(new Date()).format("YYYY-MM-DD HH:mm:ss");
         initMVList();
       }
     }
@@ -382,11 +389,16 @@ const handleConfirm = () => {
     if (valid) {
       if (form.value.id === -1) {
         if (multipleSelection.value.length > 0) {
-          form.value.id = null;
-          form.value.sysUser = currentUser;
-          form.value.mvList = multipleSelection.value;
+          if (multipleSelection.value.length >= 3 && multipleSelection.value.length <= 50) {
+            form.value.id = null;
+            form.value.sysUser = currentUser;
+            form.value.mvList = multipleSelection.value;
+          } else {
+            ElMessage.error("MV数量最少选3部，最多选50部！");
+            return;
+          }
         } else {
-          ElMessage.error("MV数量不能为空！");
+          ElMessage.error("MV数量不能为0部！");
           return;
         }
       }
