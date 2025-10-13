@@ -70,7 +70,7 @@ import {onMounted, onUnmounted, ref} from 'vue';
 import requestUtil, {getServerUrl} from '@/util/request';
 import store from '@/store';
 import qs from 'qs';
-import {ElMessage} from 'element-plus';
+import {ElMessage, ElLoading} from 'element-plus';
 import router from '@/router';
 import Cookies from 'js-cookie';
 import {encrypt, decrypt} from '@/util/jsencrypt';
@@ -87,6 +87,7 @@ const loginRules = {
   username: [{required: true, trigger: "blur", message: "请输入您的账号"}],
   password: [{required: true, trigger: "blur", message: "请输入您的密码"}]
 };
+const loading = ref(null);
 
 const refreshCaptchaImage = () => {
   captchaImage.value = getServerUrl() + 'captcha?d=' + new Date() * 1;
@@ -95,6 +96,8 @@ const refreshCaptchaImage = () => {
 const handleLogin = () => {
   loginRef.value.validate(async (valid) => {
     if (valid) {
+      // 显示登录中提示框
+      loading.value = ElLoading.service({fullscreen: true, lock: true, text: '登录中，请稍后...'});
       const res = await requestUtil.post("compareCode", {code: loginForm.value.code});
       if (res.data.code === 200) {
         // 勾选了记住密码，在cookie中设置记住用户名和密码
@@ -114,15 +117,26 @@ const handleLogin = () => {
           const token = data.authorization;
           const menuList = data.menuList;
           const currentUser = data.currentUser;
+          if (currentUser.username !== 'java1234') {
+            menuList[0].children[0].name = "我的音乐";
+            menuList[0].children[1].name = "我的MV";
+            menuList[0].children[2].name = "我的悦单";
+          }
           console.log("currentUser = " + currentUser);
           store.commit('SET_MENULIST', menuList);
           store.commit('SET_TOKEN', token);
           store.commit('SET_USERINFO', currentUser);
           router.replace("/");
+          // 隐藏登录中提示框
+          loading.value.close();
         } else {
+          // 隐藏登录中提示框
+          loading.value.close();
           ElMessage.error(data.msg);
         }
       } else {
+        // 隐藏登录中提示框
+        loading.value.close();
         ElMessage.error(res.data.msg);
       }
     } else {

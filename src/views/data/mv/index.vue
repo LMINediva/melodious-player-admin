@@ -105,15 +105,18 @@ import moment from 'moment-timezone';
 import Dialog from './components/dialog';
 import {ElMessage, ElMessageBox} from 'element-plus';
 import VideoDialog from './components/videoDialog.vue';
+import store from "@/store";
 
 const tableData = ref([]);
 const total = ref(0);
 const queryForm = ref({
   query: '',
   pageNum: 1,
-  pageSize: 10
+  pageSize: 10,
+  sysUser: {}
 });
 
+const currentUser = ref(store.getters.GET_USERINFO);
 const dialogVisible = ref(false);
 const videoDialogVisible = ref(false);
 const dialogTitle = ref("");
@@ -130,7 +133,13 @@ const handleSelectionChange = (selection) => {
 };
 
 const initMVList = async () => {
-  const res = await requestUtil.post("data/mv/list", queryForm.value);
+  let res;
+  if (currentUser.value.username !== 'java1234') {
+    queryForm.value.sysUser = currentUser;
+    res = await requestUtil.post("data/mv/myList", queryForm.value);
+  } else {
+    res = await requestUtil.post("data/mv/list", queryForm.value);
+  }
   tableData.value = res.data.mvList;
   total.value = res.data.total;
 };

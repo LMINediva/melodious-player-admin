@@ -105,15 +105,18 @@ import {Search, Delete, DocumentAdd, Edit, Tools, RefreshRight} from '@element-p
 import Dialog from './components/dialog';
 import {ElMessage, ElMessageBox} from 'element-plus';
 import LyricDialog from './components/lyricDialog.vue';
+import store from "@/store";
 
 const tableData = ref([]);
 const total = ref(0);
 const queryForm = ref({
   query: '',
   pageNum: 1,
-  pageSize: 10
+  pageSize: 10,
+  sysUser: {}
 });
 
+const currentUser = ref(store.getters.GET_USERINFO);
 const dialogVisible = ref(false);
 const lyricDialogVisible = ref(false);
 const dialogTitle = ref("");
@@ -130,7 +133,13 @@ const handleSelectionChange = (selection) => {
 };
 
 const initMusicList = async () => {
-  const res = await requestUtil.post("data/music/list", queryForm.value);
+  let res;
+  if (currentUser.value.username !== 'java1234') {
+    queryForm.value.sysUser = currentUser;
+    res = await requestUtil.post("data/music/myList", queryForm.value);
+  } else {
+    res = await requestUtil.post("data/music/list", queryForm.value);
+  }
   tableData.value = res.data.musicList;
   total.value = res.data.total;
 };
