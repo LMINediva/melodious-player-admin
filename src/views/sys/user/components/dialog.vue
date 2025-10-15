@@ -10,7 +10,7 @@
         :rules="rules"
         label-width="100px">
       <el-form-item label="用户名" prop="username">
-        <el-input v-model="form.username" :disabled="form.id === -1 ? false : 'disabled'"/>
+        <el-input v-model.trim="form.username" :disabled="form.id === -1 ? false : 'disabled'"/>
         <el-alert
             v-if="form.id === -1"
             title="默认初始密码：123456"
@@ -20,10 +20,10 @@
         </el-alert>
       </el-form-item>
       <el-form-item label="手机号" prop="phonenumber">
-        <el-input v-model="form.phonenumber"/>
+        <el-input v-model.trim="form.phonenumber"/>
       </el-form-item>
       <el-form-item label="邮箱" prop="email">
-        <el-input v-model="form.email"/>
+        <el-input v-model.trim="form.email"/>
       </el-form-item>
       <el-form-item label="状态" prop="status">
         <el-radio-group v-model="form.status">
@@ -32,7 +32,7 @@
         </el-radio-group>
       </el-form-item>
       <el-form-item label="备注" prop="remark">
-        <el-input v-model="form.remark" type="textarea" :rows="4"/>
+        <el-input v-model.trim="form.remark" type="textarea" :rows="4"/>
       </el-form-item>
     </el-form>
     <template #footer>

@@ -10,13 +10,13 @@
         :rules="rules"
         label-width="100px">
       <el-form-item label="角色名称" prop="name">
-        <el-input v-model="form.name"/>
+        <el-input v-model.trim="form.name"/>
       </el-form-item>
       <el-form-item label="权限字符" prop="code">
-        <el-input v-model="form.code"/>
+        <el-input v-model.trim="form.code"/>
       </el-form-item>
       <el-form-item label="备注" prop="remark">
-        <el-input v-model="form.remark" type="textarea" :rows="4"/>
+        <el-input v-model.trim="form.remark" type="textarea" :rows="4"/>
       </el-form-item>
     </el-form>
     <template #footer>

@@ -10,10 +10,10 @@
         :rules="rules"
         label-width="100px">
       <el-form-item label="公告标题" prop="title">
-        <el-input v-model="form.title"/>
+        <el-input v-model.trim="form.title"/>
       </el-form-item>
       <el-form-item label="公告内容" prop="content">
-        <el-mention v-model="form.content" type="textarea"/>
+        <el-mention v-model.trim="form.content" type="textarea"/>
       </el-form-item>
       <el-form-item label="发布时间" prop="publishTime">
         <el-date-picker

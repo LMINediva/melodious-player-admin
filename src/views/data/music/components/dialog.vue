@@ -10,13 +10,13 @@
         :rules="rules"
         label-width="100px">
       <el-form-item label="音乐名" prop="title">
-        <el-input v-model="form.title"/>
+        <el-input v-model.trim="form.title"/>
       </el-form-item>
       <el-form-item label="歌手姓名" prop="artistName">
-        <el-input v-model="form.artistName"/>
+        <el-input v-model.trim="form.artistName"/>
       </el-form-item>
       <el-form-item label="描述" prop="description">
-        <el-mention v-model="form.description" type="textarea"/>
+        <el-mention v-model.trim="form.description" type="textarea"/>
       </el-form-item>
       <el-form-item label="海报图片" prop="posterPic">
         <el-upload

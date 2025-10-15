@@ -10,13 +10,13 @@
         :rules="rules"
         label-width="100px">
       <el-form-item label="MV名" prop="title">
-        <el-input v-model="form.title"/>
+        <el-input v-model.trim="form.title"/>
       </el-form-item>
       <el-form-item label="歌手姓名" prop="artistName">
-        <el-input v-model="form.artistName"/>
+        <el-input v-model.trim="form.artistName"/>
       </el-form-item>
       <el-form-item label="描述" prop="description">
-        <el-mention v-model="form.description" type="textarea"/>
+        <el-mention v-model.trim="form.description" type="textarea"/>
       </el-form-item>
       <el-form-item label="区域" prop="mvArea.id">
         <el-select v-model="form.mvArea.id">
@@ -128,7 +128,6 @@ const props = defineProps(
 
 const form = ref({
   id: -1,
-  type: '',
   title: '',
   artistName: '',
   description: '',
@@ -141,6 +140,10 @@ const form = ref({
   thumbnailPic: '',
   regdate: Date,
   videoSourceTypeName: '',
+  totalViews: 0,
+  totalPcViews: 0,
+  totalMobileViews: 0,
+  totalComments: 0,
   url: '',
   hdUrl: '',
   uhdUrl: '',
@@ -269,7 +272,6 @@ watch(
       } else {
         form.value = {
           id: -1,
-          type: '',
           title: '',
           artistName: '',
           description: '',
@@ -282,6 +284,10 @@ watch(
           thumbnailPic: '',
           regdate: Date,
           videoSourceTypeName: '',
+          totalViews: 0,
+          totalPcViews: 0,
+          totalMobileViews: 0,
+          totalComments: 0,
           url: '',
           hdUrl: '',
           uhdUrl: '',

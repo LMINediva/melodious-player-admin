@@ -10,13 +10,13 @@
         :rules="rules"
         label-width="100px">
       <el-form-item label="悦单名" prop="title">
-        <el-input v-model="form.title"/>
+        <el-input v-model.trim="form.title"/>
       </el-form-item>
       <el-form-item label="描述" prop="description">
-        <el-mention v-model="form.description" type="textarea"/>
+        <el-mention v-model.trim="form.description" type="textarea"/>
       </el-form-item>
       <el-form-item label="类型" prop="category">
-        <el-input v-model="form.category" placeholder="如：华语流行音乐、说唱等"/>
+        <el-input v-model.trim="form.category" placeholder="如：华语流行音乐、说唱等"/>
       </el-form-item>
       <el-form-item label="缩略图" prop="thumbnailPic">
         <el-upload

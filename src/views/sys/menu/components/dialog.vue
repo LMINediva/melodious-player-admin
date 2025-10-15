@@ -29,16 +29,16 @@
         </el-radio-group>
       </el-form-item>
       <el-form-item label="菜单图标" prop="icon">
-        <el-input v-model="form.icon"/>
+        <el-input v-model.trim="form.icon"/>
       </el-form-item>
       <el-form-item label="菜单名称" prop="name">
-        <el-input v-model="form.name"/>
+        <el-input v-model.trim="form.name"/>
       </el-form-item>
       <el-form-item label="权限标识" prop="perms">
-        <el-input v-model="form.perms"/>
+        <el-input v-model.trim="form.perms"/>
       </el-form-item>
       <el-form-item label="组件路径" prop="component">
-        <el-input v-model="form.component"/>
+        <el-input v-model.trim="form.component"/>
       </el-form-item>
       <el-form-item label="显示顺序" prop="orderNum">
         <el-input-number v-model="form.orderNum" :min="1" label="显示顺序"></el-input-number>
