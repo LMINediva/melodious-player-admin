@@ -247,7 +247,6 @@ watch(
       let id = props.id;
       console.log("id=" + id);
       if (id !== -1) {
-        form.value.updateTime = moment(new Date()).format("YYYY-MM-DD HH:mm:ss");
         initFormData(id);
       } else {
         form.value = {
@@ -308,7 +307,6 @@ const handleConfirmUploadThumbnailPicture = async () => {
   let data = result.data;
   if (data.code === 200) {
     ElMessage.success("执行成功！");
-    store.commit("SET_USERINFO", form.value);
   } else {
     ElMessage.error(data.msg);
   }

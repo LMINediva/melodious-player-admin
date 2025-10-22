@@ -38,7 +38,7 @@
             :show-file-list="false"
             :on-success="handleAPKSuccess"
             :before-upload="beforeAPKUpload">
-          <el-text class="mx-1" type="primary" v-if="url" v-model="url"></el-text>
+          <el-text class="mx-1" type="primary" v-if="url">{{ apkName }}</el-text>
           <el-icon v-else class="picture-uploader-icon">
             <Plus/>
           </el-icon>
@@ -50,9 +50,7 @@
             v-model="form.uploadTime"
             type="datetime"
             placeholder="请选择一个日期"
-            format="YYYY-MM-DD HH:mm:ss"
-            date-format="MMM DD, YYYY"
-            time-format="HH:mm"/>
+            value-format="YYYY-MM-DD HH:mm:ss"/>
       </el-form-item>
       <el-form-item label="状态" prop="status">
         <el-radio-group v-model="form.status">
@@ -76,6 +74,7 @@ import requestUtil, {getServerUrl} from '@/util/request';
 import {ElMessage} from 'element-plus';
 import {Plus} from "@element-plus/icons-vue";
 import store from "@/store";
+import moment from "moment-timezone";
 
 const props = defineProps(
     {
@@ -114,14 +113,16 @@ const headers = ref({
 
 const iconPicUrl = ref("");
 const url = ref("");
+const apkName = ref("");
 
 const handleIconPicSuccess = (res) => {
   iconPicUrl.value = getServerUrl() + res.data.src;
-  form.value.posterPic = res.data.title;
+  form.value.icon = res.data.title;
 };
 
 const handleAPKSuccess = (res) => {
   url.value = getServerUrl() + res.data.src;
+  apkName.value = res.data.title;
   form.value.url = res.data.title;
 };
 
@@ -138,53 +139,36 @@ const beforePictureUpload = (file) => {
 }
 
 const beforeAPKUpload = (file) => {
-  const isMP3 = file.type === 'audio/mpeg' || file.type === 'audio/wav';
+  const fileExtension = file.name.split('.').pop();
+  const isAPK = fileExtension.toLowerCase() === 'apk';
   const fileSize = Number((file.size / 1024 / 1024).toFixed(1));
   const isLt50M = fileSize < 50;
-  if (!isMP3) {
-    ElMessage.error('音频只能是mp3和wav格式');
+  if (!isAPK) {
+    ElMessage.error('安卓应用只能是apk格式');
   }
   if (!isLt50M) {
-    ElMessage.error('音频大小不能超过50M！');
+    ElMessage.error('安卓应用大小不能超过50M！');
   }
-  if (isMP3 && isLt50M) {
-    form.value.musicSize = fileSize;
-    form.value.hdMusicSize = fileSize;
-    form.value.uhdMusicSize = fileSize;
-    form.value.type = file.type;
+  if (isAPK && isLt50M) {
+    form.value.size = fileSize;
   }
-  return isMP3 && isLt50M;
+  return isAPK && isLt50M;
 }
 
-const checkTitle = async (rule, value, callback) => {
-  if (form.value.id === -1) {
-    const res = await requestUtil.post("data/music/checkTitle", {title: form.value.title});
-    if (res.data.code === 500) {
-      callback(new Error("音乐名已存在！"));
-    } else {
-      callback();
-    }
-  } else {
-    callback();
-  }
-};
-
 const rules = ref({
-  title: [
-    {required: true, message: '请输入音乐名'},
-    {required: true, validator: checkTitle, trigger: "blur"}
+  name: [
+    {required: true, message: '请输入应用名', trigger: "blur"}
   ],
-  artistName: [{required: true, message: "歌手姓名不能为空", trigger: "blur"}],
-  description: [{required: true, message: "描述不能为空", trigger: "blur"}]
+  version: [{required: true, message: "版本号不能为空", trigger: "blur"}]
 });
 
 const formRef = ref(null);
 
 const initFormData = async (id) => {
-  const res = await requestUtil.get("data/music/" + id);
-  form.value = res.data.music;
-  iconPicUrl.value = getServerUrl() + 'image/musicPicture/' + form.value.posterPic;
-  url.value = getServerUrl() + 'audio/music/' + form.value.url;
+  const res = await requestUtil.get("sys/android/" + id);
+  form.value = res.data.androidApplication;
+  iconPicUrl.value = getServerUrl() + 'image/androidApplicationPicture/' + form.value.icon;
+  url.value = getServerUrl() + 'application/android/' + form.value.url;
 };
 
 watch(
@@ -207,6 +191,7 @@ watch(
         };
         url.value = null;
         iconPicUrl.value = null;
+        form.value.uploadTime = moment(new Date()).format("YYYY-MM-DD HH:mm:ss");
       }
     }
 );
@@ -216,70 +201,43 @@ const isNotEmpty = (value) => {
 }
 
 const handleDeleteUploadFileCache = async () => {
-  let result = await requestUtil.post("data/music/deleteUploadFileCache", form.value);
+  let result = await requestUtil.post("sys/android/deleteUploadFileCache", form.value);
   let data = result.data;
   if (data.code === 200) {
-    form.value.posterPic = "";
-    form.value.thumbnailPic = "";
+    form.value.icon = "";
     form.value.url = "";
-    form.value.lyric = "";
     ElMessage.success("文件上传缓存删除成功！");
   } else {
     ElMessage.error(data.msg);
   }
 }
 
-const emits = defineEmits(['update:modelValue', 'initMusicList']);
+const emits = defineEmits(['update:modelValue', 'initAndroidApplicationList']);
 
 const handleClose = () => {
   emits('update:modelValue', false);
   if (form.value.id === -1) {
-    if (isNotEmpty(form.value.posterPic) || isNotEmpty(form.value.thumbnailPic)
-        || isNotEmpty(form.value.url) || isNotEmpty(form.value.lyric)) {
+    if (isNotEmpty(form.value.icon) || isNotEmpty(form.value.url)) {
       handleDeleteUploadFileCache();
     }
   }
 };
 
 const handleConfirmUploadIconPicture = async () => {
-  let result = await requestUtil.post("data/music/updatePosterPicture", form.value);
+  let result = await requestUtil.post("sys/android/updateIconPicture", form.value);
   let data = result.data;
   if (data.code === 200) {
     ElMessage.success("执行成功！");
-    store.commit("SET_USERINFO", form.value);
-  } else {
-    ElMessage.error(data.msg);
-  }
-}
-
-const handleConfirmUploadThumbnailPicture = async () => {
-  let result = await requestUtil.post("data/music/updateThumbnailPicture", form.value);
-  let data = result.data;
-  if (data.code === 200) {
-    ElMessage.success("执行成功！");
-    store.commit("SET_USERINFO", form.value);
-  } else {
-    ElMessage.error(data.msg);
-  }
-}
-
-const handleConfirmUploadLyric = async () => {
-  let result = await requestUtil.post("data/music/updateLyric", form.value);
-  let data = result.data;
-  if (data.code === 200) {
-    ElMessage.success("执行成功！");
-    store.commit("SET_USERINFO", form.value);
   } else {
     ElMessage.error(data.msg);
   }
 }
 
 const handleConfirmUploadAPK = async () => {
-  let result = await requestUtil.post("data/music/updateAudio", form.value);
+  let result = await requestUtil.post("sys/android/updateAndroidApplication", form.value);
   let data = result.data;
   if (data.code === 200) {
     ElMessage.success("执行成功！");
-    store.commit("SET_USERINFO", form.value);
   } else {
     ElMessage.error(data.msg);
   }
@@ -291,12 +249,12 @@ const handleConfirm = () => {
       if (form.value.id === -1) {
         form.value.id = null;
       }
-      let result = await requestUtil.post("data/music/save", form.value);
+      let result = await requestUtil.post("sys/android/save", form.value);
       let data = result.data;
       if (data.code === 200) {
         ElMessage.success("执行成功！");
         formRef.value.resetFields();
-        emits("initMusicList");
+        emits("initAndroidApplicationList");
         handleClose();
       } else {
         ElMessage.error(data.msg);

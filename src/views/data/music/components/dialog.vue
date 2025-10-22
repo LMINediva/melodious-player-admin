@@ -326,7 +326,6 @@ const handleConfirmUploadPosterPicture = async () => {
   let data = result.data;
   if (data.code === 200) {
     ElMessage.success("执行成功！");
-    store.commit("SET_USERINFO", form.value);
   } else {
     ElMessage.error(data.msg);
   }
@@ -337,7 +336,6 @@ const handleConfirmUploadThumbnailPicture = async () => {
   let data = result.data;
   if (data.code === 200) {
     ElMessage.success("执行成功！");
-    store.commit("SET_USERINFO", form.value);
   } else {
     ElMessage.error(data.msg);
   }
@@ -348,7 +346,6 @@ const handleConfirmUploadLyric = async () => {
   let data = result.data;
   if (data.code === 200) {
     ElMessage.success("执行成功！");
-    store.commit("SET_USERINFO", form.value);
   } else {
     ElMessage.error(data.msg);
   }
@@ -359,7 +356,6 @@ const handleConfirmUploadAudio = async () => {
   let data = result.data;
   if (data.code === 200) {
     ElMessage.success("执行成功！");
-    store.commit("SET_USERINFO", form.value);
   } else {
     ElMessage.error(data.msg);
   }

@@ -2,7 +2,7 @@
   <div class="app-container">
     <el-row :gutter="20" class="header">
       <el-col :span="7">
-        <el-input placeholder="请输入应用版本名..." v-model="queryForm.query" clearable></el-input>
+        <el-input placeholder="请输入应用版本号..." v-model="queryForm.query" clearable></el-input>
       </el-col>
       <el-button type="primary" :icon="Search" @click="initAndroidApplicationList">搜索</el-button>
       <el-button type="success" :icon="DocumentAdd" @click="handleDialogValue()">新增</el-button>

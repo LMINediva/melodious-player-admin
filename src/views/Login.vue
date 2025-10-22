@@ -117,12 +117,6 @@ const handleLogin = () => {
           const token = data.authorization;
           const menuList = data.menuList;
           const currentUser = data.currentUser;
-          if (currentUser.username !== 'java1234') {
-            menuList[0].children[0].name = "我的音乐";
-            menuList[0].children[1].name = "我的MV";
-            menuList[0].children[2].name = "我的悦单";
-          }
-          console.log("currentUser = " + currentUser);
           store.commit('SET_MENULIST', menuList);
           store.commit('SET_TOKEN', token);
           store.commit('SET_USERINFO', currentUser);
@@ -187,7 +181,7 @@ a {
   justify-content: center;
   align-items: center;
   height: 100%;
-  background-image: url("../assets/images/login-background.jpg");
+  background-image: url("../assets/images/login-background.png");
   background-size: 100% 100%;
 }
 
