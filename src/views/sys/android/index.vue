@@ -22,7 +22,14 @@
         </template>
       </el-table-column>
       <el-table-column prop="version" label="版本号" width="100" align="center"/>
-      <el-table-column prop="url" label="APK" width="100" align="center"/>
+      <el-table-column label="APK" width="100" align="center">
+        <template v-slot="scope">
+          <el-text v-if="scope.row.url" class="mx-1" type="primary"
+                   @click="handleDownloadAPK(scope.row.url)">
+            {{ scope.row.url }}
+          </el-text>
+        </template>
+      </el-table-column>
       <el-table-column prop="size" label="大小（MB）" width="100" align="center"/>
       <el-table-column prop="uploadTime" label="上传时间" width="200" align="center" :formatter="formatDateTime"/>
       <el-table-column prop="status" label="状态" width="120" align="center" :formatter="stateFormat"/>
@@ -69,7 +76,6 @@ const queryForm = ref({
   sysUser: {}
 });
 
-const currentUser = ref(store.getters.GET_USERINFO);
 const dialogVisible = ref(false);
 const dialogTitle = ref("");
 const id = ref(-1);
@@ -136,6 +142,25 @@ const handleDelete = async (id) => {
     });
   }
 };
+
+const handleDownloadAPK = async (filename) => {
+  try {
+    // 创建隐藏的a标签
+    const link = document.createElement('a');
+    link.style.display = 'none';
+    link.href = requestUtil.baseUrl + "sys/android/downloadAPK/" + filename;
+    // 设置download属性为文件名
+    link.setAttribute('download', filename || 'download');
+    // 添加到页面并触发点击
+    document.body.appendChild(link);
+    link.click();
+    // 移除链接
+    document.body.removeChild(link);
+    ElMessage.success("APK文件开始下载！");
+  } catch (error) {
+    ElMessage.error('APK文件下载失败，请重试！', error);
+  }
+}
 
 const stateFormat = (row, column) => {
   if (row.status === 0) {
