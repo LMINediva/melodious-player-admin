@@ -236,10 +236,17 @@ const checkTitle = async (rule, value, callback) => {
 const rules = ref({
   title: [
     {required: true, message: '请输入音乐名'},
+    {min: 1, max: 80, message: '音乐名长度在1到80个字符之间', trigger: 'blur'},
     {required: true, validator: checkTitle, trigger: "blur"}
   ],
-  artistName: [{required: true, message: "歌手姓名不能为空", trigger: "blur"}],
-  description: [{required: true, message: "描述不能为空", trigger: "blur"}]
+  artistName: [
+    {required: true, message: "歌手姓名不能为空", trigger: "blur"},
+    {min: 1, max: 80, message: '歌手姓名长度在1到80个字符之间', trigger: 'blur'}
+  ],
+  description: [
+    {required: true, message: "描述不能为空", trigger: "blur"},
+    {min: 1, max: 220, message: '描述长度在1到220个字符之间', trigger: 'blur'}
+  ]
 });
 
 const formRef = ref(null);

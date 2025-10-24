@@ -22,6 +22,11 @@
         </template>
       </el-table-column>
       <el-table-column prop="version" label="版本号" width="100" align="center"/>
+      <el-table-column prop="content" label="关于应用" width="120" align="center">
+        <template v-slot="scope">
+          <p class="cell-overflow-ellipsis">{{ scope.row.content }}</p>
+        </template>
+      </el-table-column>
       <el-table-column label="APK" width="100" align="center">
         <template v-slot="scope">
           <el-text v-if="scope.row.url" class="mx-1" type="primary"

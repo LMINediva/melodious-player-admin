@@ -83,18 +83,6 @@
             @current-change="handleCurrentChange"
         />
       </el-form-item>
-      <el-form-item label="积分" prop="integral">
-        <el-input v-model="form.integral"/>
-      </el-form-item>
-      <el-form-item label="周积分" prop="weekIntegral">
-        <el-input v-model="form.weekIntegral"/>
-      </el-form-item>
-      <el-form-item label="总积分" prop="totalUser">
-        <el-input v-model="form.totalUser"/>
-      </el-form-item>
-      <el-form-item label="排名" prop="rank">
-        <el-input v-model="form.rank"/>
-      </el-form-item>
       <el-form-item label="创建时间" prop="createTime">
         <el-date-picker
             v-model="form.createTime"
@@ -224,9 +212,13 @@ const checkTitle = async (rule, value, callback) => {
 const rules = ref({
   title: [
     {required: true, message: '请输入悦单名'},
+    {min: 1, max: 80, message: '悦单名长度在1到80个字符之间', trigger: 'blur'},
     {required: true, validator: checkTitle, trigger: "blur"}
   ],
-  description: [{required: true, message: "描述不能为空", trigger: "blur"}],
+  description: [
+    {required: true, message: "描述不能为空", trigger: "blur"},
+    {min: 1, max: 220, message: '描述长度在1到220个字符之间', trigger: 'blur'}
+  ],
   category: [
     {required: true, message: '请输入类型', trigger: "blur"},
     {min: 2, max: 10, message: '类型长度在2到10个字符之间', trigger: 'blur'}

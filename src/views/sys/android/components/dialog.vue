@@ -30,6 +30,9 @@
       <el-form-item label="版本号" prop="version">
         <el-input v-model.trim="form.version"/>
       </el-form-item>
+      <el-form-item label="关于应用" prop="content">
+        <el-mention v-model="form.content" type="textarea"/>
+      </el-form-item>
       <el-form-item label="APK" prop="url">
         <el-upload
             :headers="headers"
@@ -101,6 +104,7 @@ const form = ref({
   name: '',
   icon: '',
   version: '',
+  content: '',
   url: '',
   size: 0,
   uploadTime: Date,
@@ -159,7 +163,11 @@ const rules = ref({
   name: [
     {required: true, message: '请输入应用名', trigger: "blur"}
   ],
-  version: [{required: true, message: "版本号不能为空", trigger: "blur"}]
+  version: [{required: true, message: "版本号不能为空", trigger: "blur"}],
+  content: [
+    {required: true, message: '请输入关于应用的内容', trigger: "blur"},
+    {min: 1, max: 80, message: '内容长度在1到80个字符之间', trigger: 'blur'}
+  ]
 });
 
 const formRef = ref(null);
@@ -184,6 +192,7 @@ watch(
           name: '',
           icon: '',
           version: '',
+          content: '',
           url: '',
           size: 0,
           uploadTime: Date,
@@ -249,6 +258,7 @@ const handleConfirm = () => {
       if (form.value.id === -1) {
         form.value.id = null;
       }
+      form.value.content = form.value.content.toString().trim();
       let result = await requestUtil.post("sys/android/save", form.value);
       let data = result.data;
       if (data.code === 200) {
