@@ -101,7 +101,6 @@ export function getServerUrl() {
 }
 
 export default {
-    baseUrl,
     get,
     post,
     fileUpload,

@@ -37,6 +37,7 @@
       </el-table-column>
       <el-table-column prop="size" label="大小（MB）" width="100" align="center"/>
       <el-table-column prop="uploadTime" label="上传时间" width="200" align="center" :formatter="formatDateTime"/>
+      <el-table-column prop="force" label="强制更新" width="120" align="center" :formatter="forceFormat"/>
       <el-table-column prop="status" label="状态" width="120" align="center" :formatter="stateFormat"/>
       <el-table-column prop="action" label="操作" width="400" fixed="right" align="center">
         <template v-slot="scope">
@@ -69,7 +70,6 @@ import requestUtil, {getServerUrl} from '@/util/request';
 import {Search, Delete, DocumentAdd, Edit, Tools, RefreshRight} from '@element-plus/icons-vue';
 import Dialog from './components/dialog';
 import {ElMessage, ElMessageBox} from 'element-plus';
-import store from "@/store";
 import moment from 'moment-timezone';
 
 const tableData = ref([]);
@@ -153,7 +153,7 @@ const handleDownloadAPK = async (filename) => {
     // 创建隐藏的a标签
     const link = document.createElement('a');
     link.style.display = 'none';
-    link.href = requestUtil.baseUrl + "sys/android/downloadAPK/" + filename;
+    link.href = getServerUrl() + "sys/android/downloadAPK/" + filename;
     // 设置download属性为文件名
     link.setAttribute('download', filename || 'download');
     // 添加到页面并触发点击
@@ -166,6 +166,14 @@ const handleDownloadAPK = async (filename) => {
     ElMessage.error('APK文件下载失败，请重试！', error);
   }
 }
+
+const forceFormat = (row, column) => {
+  if (row.force === 0) {
+    return '否';
+  } else {
+    return '是';
+  }
+};
 
 const stateFormat = (row, column) => {
   if (row.status === 0) {

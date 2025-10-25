@@ -20,10 +20,9 @@
             :show-file-list="false"
             :on-success="handleIconPicSuccess"
             :before-upload="beforePictureUpload">
-          <img v-if="iconPicUrl" :src="iconPicUrl" class="picture" alt="海报图片"/>
-          <el-icon v-else class="picture-uploader-icon">
-            <Plus/>
-          </el-icon>
+          <img v-if="iconPicUrl" :src="iconPicUrl" class="picture" alt="应用图标"/>
+          <img v-else :src="getServerUrl() + 'image/androidApplicationPicture/default.png'"
+               class="picture" alt="应用图标"/>
         </el-upload>
         <el-button @click="handleConfirmUploadIconPicture">确认更换</el-button>
       </el-form-item>
@@ -54,6 +53,12 @@
             type="datetime"
             placeholder="请选择一个日期"
             value-format="YYYY-MM-DD HH:mm:ss"/>
+      </el-form-item>
+      <el-form-item label="强制更新" prop="force">
+        <el-radio-group v-model="form.force">
+          <el-radio :value="0">否</el-radio>
+          <el-radio :value="1">是</el-radio>
+        </el-radio-group>
       </el-form-item>
       <el-form-item label="状态" prop="status">
         <el-radio-group v-model="form.status">
@@ -108,6 +113,7 @@ const form = ref({
   url: '',
   size: 0,
   uploadTime: Date,
+  force: 0,
   status: 0
 });
 
@@ -196,6 +202,7 @@ watch(
           url: '',
           size: 0,
           uploadTime: Date,
+          force: 0,
           status: 0
         };
         url.value = null;
