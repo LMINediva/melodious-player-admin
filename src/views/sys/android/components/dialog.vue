@@ -26,6 +26,9 @@
         </el-upload>
         <el-button @click="handleConfirmUploadIconPicture">确认更换</el-button>
       </el-form-item>
+      <el-form-item label="版本代码" prop="code">
+        <el-input v-model="form.code"/>
+      </el-form-item>
       <el-form-item label="版本号" prop="version">
         <el-input v-model.trim="form.version"/>
       </el-form-item>
@@ -107,7 +110,8 @@ const props = defineProps(
 const form = ref({
   id: -1,
   name: '',
-  icon: '',
+  icon: 'default.png',
+  code: 0,
   version: '',
   content: '',
   url: '',
@@ -183,6 +187,7 @@ const initFormData = async (id) => {
   form.value = res.data.androidApplication;
   iconPicUrl.value = getServerUrl() + 'image/androidApplicationPicture/' + form.value.icon;
   url.value = getServerUrl() + 'application/android/' + form.value.url;
+  apkName.value = form.value.url;
 };
 
 watch(
@@ -196,7 +201,8 @@ watch(
         form.value = {
           id: -1,
           name: '',
-          icon: '',
+          icon: 'default.png',
+          code: 0,
           version: '',
           content: '',
           url: '',
@@ -233,7 +239,7 @@ const emits = defineEmits(['update:modelValue', 'initAndroidApplicationList']);
 const handleClose = () => {
   emits('update:modelValue', false);
   if (form.value.id === -1) {
-    if (isNotEmpty(form.value.icon) || isNotEmpty(form.value.url)) {
+    if (form.value.icon !== 'default.png' || isNotEmpty(form.value.url)) {
       handleDeleteUploadFileCache();
     }
   }

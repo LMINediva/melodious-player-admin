@@ -21,6 +21,7 @@
                alt="海报图片"/>
         </template>
       </el-table-column>
+      <el-table-column prop="code" label="版本代码" width="80" align="center"/>
       <el-table-column prop="version" label="版本号" width="100" align="center"/>
       <el-table-column prop="content" label="关于应用" width="120" align="center">
         <template v-slot="scope">
