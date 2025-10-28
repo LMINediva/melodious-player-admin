@@ -2,9 +2,9 @@
   <div class="app-container">
     <el-row :gutter="20" class="header">
       <el-col :span="7">
-        <el-input placeholder="请输入应用版本号..." v-model="queryForm.query" clearable></el-input>
+        <el-input placeholder="请输入反馈内容..." v-model="queryForm.query" clearable></el-input>
       </el-col>
-      <el-button type="primary" :icon="Search" @click="initAndroidApplicationList">搜索</el-button>
+      <el-button type="primary" :icon="Search" @click="initFeedbackList">搜索</el-button>
       <el-button type="success" :icon="DocumentAdd" @click="handleDialogValue()">新增</el-button>
       <el-popconfirm title="您确定批量删除这些记录吗？" @confirm="handleDelete(null)">
         <template #reference>
@@ -14,32 +14,19 @@
     </el-row>
     <el-table :data="tableData" stripe style="width: 100%" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55"/>
-      <el-table-column prop="name" label="应用名" width="80" align="center"/>
-      <el-table-column prop="icon" label="应用图标" width="80" align="center">
-        <template v-slot="scope">
-          <img :src="getServerUrl() + 'image/androidApplicationPicture/' + scope.row.icon" width="50" height="50"
-               alt="应用图标"/>
-        </template>
-      </el-table-column>
-      <el-table-column prop="code" label="版本代码" width="80" align="center"/>
-      <el-table-column prop="version" label="版本号" width="100" align="center"/>
-      <el-table-column prop="content" label="关于应用" width="120" align="center">
+      <el-table-column prop="sysUser.username" label="创建用户" width="100" align="center"/>
+      <el-table-column prop="content" label="反馈内容" width="120" align="center">
         <template v-slot="scope">
           <p class="cell-overflow-ellipsis">{{ scope.row.content }}</p>
         </template>
       </el-table-column>
-      <el-table-column label="APK" width="100" align="center">
+      <el-table-column prop="picture" label="反馈图片" width="80" align="center">
         <template v-slot="scope">
-          <el-text v-if="scope.row.url" class="mx-1" type="primary"
-                   @click="handleDownloadAPK(scope.row.url)">
-            {{ scope.row.url }}
-          </el-text>
+          <img :src="getServerUrl() + 'image/feedbackPicture/' + scope.row.picture" width="50" height="50"
+               alt="反馈图片"/>
         </template>
       </el-table-column>
-      <el-table-column prop="size" label="大小（MB）" width="100" align="center"/>
-      <el-table-column prop="uploadTime" label="上传时间" width="200" align="center" :formatter="formatDateTime"/>
-      <el-table-column prop="force" label="强制更新" width="120" align="center" :formatter="forceFormat"/>
-      <el-table-column prop="status" label="状态" width="120" align="center" :formatter="stateFormat"/>
+      <el-table-column prop="submissionTime" label="提交时间" width="200" align="center" :formatter="formatDateTime"/>
       <el-table-column prop="action" label="操作" width="400" fixed="right" align="center">
         <template v-slot="scope">
           <el-button type="primary" :icon="Edit" @click="handleDialogValue(scope.row.id)"/>
@@ -62,13 +49,13 @@
     />
   </div>
   <Dialog v-model="dialogVisible" :dialogVisible="dialogVisible" :id="id" :dialogTitle="dialogTitle"
-          @initAndroidApplicationList="initAndroidApplicationList"/>
+          @initFeedbackList="initFeedbackList"/>
 </template>
 
 <script setup>
 import {ref} from 'vue';
 import requestUtil, {getServerUrl} from '@/util/request';
-import {Search, Delete, DocumentAdd, Edit, Tools, RefreshRight} from '@element-plus/icons-vue';
+import {Search, Delete, DocumentAdd, Edit} from '@element-plus/icons-vue';
 import Dialog from './components/dialog';
 import {ElMessage, ElMessageBox} from 'element-plus';
 import moment from 'moment-timezone';
@@ -95,32 +82,32 @@ const handleSelectionChange = (selection) => {
   delBtnStatus.value = selection.length === 0;
 };
 
-const initAndroidApplicationList = async () => {
-  const res = await requestUtil.post("sys/android/list", queryForm.value);
-  tableData.value = res.data.androidApplicationList;
+const initFeedbackList = async () => {
+  const res = await requestUtil.post("sys/feedback/list", queryForm.value);
+  tableData.value = res.data.feedbackList;
   total.value = res.data.total;
 };
 
-initAndroidApplicationList();
+initFeedbackList();
 
 const handleSizeChange = (pageSize) => {
   queryForm.value.pageNum = 1;
   queryForm.value.pageSize = pageSize;
-  initAndroidApplicationList();
+  initFeedbackList();
 };
 
 const handleCurrentChange = (pageNum) => {
   queryForm.value.pageNum = pageNum;
-  initAndroidApplicationList();
+  initFeedbackList();
 };
 
-const handleDialogValue = (androidApplicationId) => {
-  if (androidApplicationId) {
-    id.value = androidApplicationId;
-    dialogTitle.value = "安卓应用修改";
+const handleDialogValue = (feedbackId) => {
+  if (feedbackId) {
+    id.value = feedbackId;
+    dialogTitle.value = "反馈修改";
   } else {
     id.value = -1;
-    dialogTitle.value = "安卓应用添加";
+    dialogTitle.value = "反馈添加";
   }
   dialogVisible.value = true;
 };
@@ -134,53 +121,18 @@ const handleDelete = async (id) => {
       ids.push(row.id);
     });
   }
-  const res = await requestUtil.post("sys/android/delete", ids);
+  const res = await requestUtil.post("sys/feedback/delete", ids);
   if (res.data.code === 200) {
     ElMessage({
       type: 'success',
       message: '执行成功!'
     });
-    initAndroidApplicationList();
+    initFeedbackList();
   } else {
     ElMessage({
       type: 'error',
       message: res.data.msg,
     });
-  }
-};
-
-const handleDownloadAPK = async (filename) => {
-  try {
-    // 创建隐藏的a标签
-    const link = document.createElement('a');
-    link.style.display = 'none';
-    link.href = getServerUrl() + "sys/android/downloadAPK/" + filename;
-    // 设置download属性为文件名
-    link.setAttribute('download', filename || 'download');
-    // 添加到页面并触发点击
-    document.body.appendChild(link);
-    link.click();
-    // 移除链接
-    document.body.removeChild(link);
-    ElMessage.success("APK文件开始下载！");
-  } catch (error) {
-    ElMessage.error('APK文件下载失败，请重试！', error);
-  }
-}
-
-const forceFormat = (row, column) => {
-  if (row.force === 0) {
-    return '否';
-  } else {
-    return '是';
-  }
-};
-
-const stateFormat = (row, column) => {
-  if (row.status === 0) {
-    return '正常';
-  } else {
-    return '禁用';
   }
 };
 
