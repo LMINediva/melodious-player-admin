@@ -9,65 +9,30 @@
         :model="form"
         :rules="rules"
         label-width="100px">
-      <el-form-item label="应用名" prop="name">
-        <el-input v-model.trim="form.name"/>
-      </el-form-item>
-      <el-form-item label="应用图标" prop="icon">
-        <el-upload
-            :headers="headers"
-            class="picture-uploader"
-            :action="getServerUrl() + 'sys/android/uploadImage'"
-            :show-file-list="false"
-            :on-success="handleIconPicSuccess"
-            :before-upload="beforePictureUpload">
-          <img v-if="iconPicUrl" :src="iconPicUrl" class="picture" alt="应用图标"/>
-          <img v-else :src="getServerUrl() + 'image/androidApplicationPicture/default.png'"
-               class="picture" alt="应用图标"/>
-        </el-upload>
-        <el-button @click="handleConfirmUploadIconPicture">确认更换</el-button>
-      </el-form-item>
-      <el-form-item label="版本代码" prop="code">
-        <el-input v-model="form.code"/>
-      </el-form-item>
-      <el-form-item label="版本号" prop="version">
-        <el-input v-model.trim="form.version"/>
-      </el-form-item>
-      <el-form-item label="关于应用" prop="content">
+      <el-form-item label="反馈内容" prop="content">
         <el-mention v-model="form.content" type="textarea"/>
       </el-form-item>
-      <el-form-item label="APK" prop="url">
+      <el-form-item label="反馈图片" prop="picture">
         <el-upload
             :headers="headers"
             class="picture-uploader"
-            :action="getServerUrl() + 'sys/android/uploadAPK'"
+            :action="getServerUrl() + 'sys/feedback/uploadImage'"
             :show-file-list="false"
-            :on-success="handleAPKSuccess"
-            :before-upload="beforeAPKUpload">
-          <el-text class="mx-1" type="primary" v-if="url">{{ apkName }}</el-text>
+            :on-success="handlePicSuccess"
+            :before-upload="beforePictureUpload">
+          <img v-if="picUrl" :src="picUrl" class="picture" alt="反馈图片"/>
           <el-icon v-else class="picture-uploader-icon">
             <Plus/>
           </el-icon>
         </el-upload>
-        <el-button @click="handleConfirmUploadAPK">确认更换</el-button>
+        <el-button @click="handleConfirmUploadPicture">确认更换</el-button>
       </el-form-item>
-      <el-form-item label="上传时间" prop="uploadTime">
+      <el-form-item label="提交时间" prop="submissionTime">
         <el-date-picker
-            v-model="form.uploadTime"
+            v-model="form.submissionTime"
             type="datetime"
             placeholder="请选择一个日期"
             value-format="YYYY-MM-DD HH:mm:ss"/>
-      </el-form-item>
-      <el-form-item label="强制更新" prop="force">
-        <el-radio-group v-model="form.force">
-          <el-radio :value="0">否</el-radio>
-          <el-radio :value="1">是</el-radio>
-        </el-radio-group>
-      </el-form-item>
-      <el-form-item label="状态" prop="status">
-        <el-radio-group v-model="form.status">
-          <el-radio :value="0">正常</el-radio>
-          <el-radio :value="1">禁用</el-radio>
-        </el-radio-group>
       </el-form-item>
     </el-form>
     <template #footer>
@@ -109,35 +74,22 @@ const props = defineProps(
 
 const form = ref({
   id: -1,
-  name: '',
-  icon: 'default.png',
-  code: 0,
-  version: '',
   content: '',
-  url: '',
-  size: 0,
-  uploadTime: Date,
-  force: 0,
-  status: 0
+  picture: '',
+  submissionTime: Date,
+  sysUser: {}
 });
 
 const headers = ref({
   token: store.getters.GET_TOKEN
 });
 
-const iconPicUrl = ref("");
-const url = ref("");
-const apkName = ref("");
+const picUrl = ref("");
+const currentUser = ref(store.getters.GET_USERINFO);
 
-const handleIconPicSuccess = (res) => {
-  iconPicUrl.value = getServerUrl() + res.data.src;
-  form.value.icon = res.data.title;
-};
-
-const handleAPKSuccess = (res) => {
-  url.value = getServerUrl() + res.data.src;
-  apkName.value = res.data.title;
-  form.value.url = res.data.title;
+const handlePicSuccess = (res) => {
+  picUrl.value = getServerUrl() + res.data.src;
+  form.value.picture = res.data.title;
 };
 
 const beforePictureUpload = (file) => {
@@ -152,42 +104,19 @@ const beforePictureUpload = (file) => {
   return isJPG && isLt2M;
 }
 
-const beforeAPKUpload = (file) => {
-  const fileExtension = file.name.split('.').pop();
-  const isAPK = fileExtension.toLowerCase() === 'apk';
-  const fileSize = Number((file.size / 1024 / 1024).toFixed(1));
-  const isLt50M = fileSize < 50;
-  if (!isAPK) {
-    ElMessage.error('安卓应用只能是apk格式');
-  }
-  if (!isLt50M) {
-    ElMessage.error('安卓应用大小不能超过50M！');
-  }
-  if (isAPK && isLt50M) {
-    form.value.size = fileSize;
-  }
-  return isAPK && isLt50M;
-}
-
 const rules = ref({
-  name: [
-    {required: true, message: '请输入应用名', trigger: "blur"}
-  ],
-  version: [{required: true, message: "版本号不能为空", trigger: "blur"}],
   content: [
-    {required: true, message: '请输入关于应用的内容', trigger: "blur"},
-    {min: 1, max: 80, message: '内容长度在1到80个字符之间', trigger: 'blur'}
+    {required: true, message: '请输入反馈的内容', trigger: "blur"},
+    {min: 1, max: 200, message: '内容长度在1到200个字符之间', trigger: 'blur'}
   ]
 });
 
 const formRef = ref(null);
 
 const initFormData = async (id) => {
-  const res = await requestUtil.get("sys/android/" + id);
-  form.value = res.data.androidApplication;
-  iconPicUrl.value = getServerUrl() + 'image/androidApplicationPicture/' + form.value.icon;
-  url.value = getServerUrl() + 'application/android/' + form.value.url;
-  apkName.value = form.value.url;
+  const res = await requestUtil.get("sys/feedback/" + id);
+  form.value = res.data.feedback;
+  picUrl.value = getServerUrl() + 'image/feedbackPicture/' + form.value.picture;
 };
 
 watch(
@@ -200,20 +129,13 @@ watch(
       } else {
         form.value = {
           id: -1,
-          name: '',
-          icon: 'default.png',
-          code: 0,
-          version: '',
           content: '',
-          url: '',
-          size: 0,
-          uploadTime: Date,
-          force: 0,
-          status: 0
+          picture: '',
+          submissionTime: Date,
+          sysUser: {}
         };
-        url.value = null;
-        iconPicUrl.value = null;
-        form.value.uploadTime = moment(new Date()).format("YYYY-MM-DD HH:mm:ss");
+        picUrl.value = null;
+        form.value.submissionTime = moment(new Date()).format("YYYY-MM-DD HH:mm:ss");
       }
     }
 );
@@ -223,40 +145,29 @@ const isNotEmpty = (value) => {
 }
 
 const handleDeleteUploadFileCache = async () => {
-  let result = await requestUtil.post("sys/android/deleteUploadFileCache", form.value);
+  let result = await requestUtil.post("sys/feedback/deleteUploadFileCache", form.value);
   let data = result.data;
   if (data.code === 200) {
-    form.value.icon = "";
-    form.value.url = "";
+    form.value.picture = "";
     ElMessage.success("文件上传缓存删除成功！");
   } else {
     ElMessage.error(data.msg);
   }
 }
 
-const emits = defineEmits(['update:modelValue', 'initAndroidApplicationList']);
+const emits = defineEmits(['update:modelValue', 'initFeedbackList']);
 
 const handleClose = () => {
   emits('update:modelValue', false);
   if (form.value.id === -1) {
-    if (form.value.icon !== 'default.png' || isNotEmpty(form.value.url)) {
+    if (isNotEmpty(form.value.picture)) {
       handleDeleteUploadFileCache();
     }
   }
 };
 
-const handleConfirmUploadIconPicture = async () => {
-  let result = await requestUtil.post("sys/android/updateIconPicture", form.value);
-  let data = result.data;
-  if (data.code === 200) {
-    ElMessage.success("执行成功！");
-  } else {
-    ElMessage.error(data.msg);
-  }
-}
-
-const handleConfirmUploadAPK = async () => {
-  let result = await requestUtil.post("sys/android/updateAndroidApplication", form.value);
+const handleConfirmUploadPicture = async () => {
+  let result = await requestUtil.post("sys/feedback/updatePicture", form.value);
   let data = result.data;
   if (data.code === 200) {
     ElMessage.success("执行成功！");
@@ -270,14 +181,15 @@ const handleConfirm = () => {
     if (valid) {
       if (form.value.id === -1) {
         form.value.id = null;
+        form.value.sysUser = currentUser;
       }
       form.value.content = form.value.content.toString().trim();
-      let result = await requestUtil.post("sys/android/save", form.value);
+      let result = await requestUtil.post("sys/feedback/save", form.value);
       let data = result.data;
       if (data.code === 200) {
         ElMessage.success("执行成功！");
         formRef.value.resetFields();
-        emits("initAndroidApplicationList");
+        emits("initFeedbackList");
         handleClose();
       } else {
         ElMessage.error(data.msg);
