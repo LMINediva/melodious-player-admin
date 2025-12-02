@@ -43,35 +43,35 @@
           </el-text>
         </template>
       </el-table-column>
-      <el-table-column prop="url" label="音乐" width="350" align="center">
+      <el-table-column prop="url" label="音乐" width="100" align="center">
         <template v-slot="scope">
-          <audio ref="audioPlayer" controls>
-            <source :src="getServerUrl() + 'audio/music/' + scope.row.url" type="audio/mpeg">
-            您的浏览器不支持audio元素。
-          </audio>
+          <el-text v-if="scope.row.url" class="mx-1" type="primary"
+                   @click="handleAudioDialogValue(scope.row.id, scope.row.title, scope.row.url)">
+            {{ scope.row.url }}
+          </el-text>
         </template>
       </el-table-column>
-      <el-table-column prop="hdUrl" label="高品质音乐" width="350" align="center">
+      <el-table-column prop="hdUrl" label="高品质音乐" width="100" align="center">
         <template v-slot="scope">
-          <audio ref="audioPlayer" controls>
-            <source :src="getServerUrl() + 'audio/music/' + scope.row.hdUrl" type="audio/mpeg">
-            您的浏览器不支持audio元素。
-          </audio>
+          <el-text v-if="scope.row.hdUrl" class="mx-1" type="primary"
+                   @click="handleAudioDialogValue(scope.row.id, scope.row.title, scope.row.hdUrl)">
+            {{ scope.row.hdUrl }}
+          </el-text>
         </template>
       </el-table-column>
-      <el-table-column prop="uhdUrl" label="超高品质音乐" width="350" align="center">
+      <el-table-column prop="uhdUrl" label="超高品质音乐" width="100" align="center">
         <template v-slot="scope">
-          <audio ref="audioPlayer" controls>
-            <source :src="getServerUrl() + 'audio/music/' + scope.row.uhdUrl" type="audio/mpeg">
-            您的浏览器不支持audio元素。
-          </audio>
+          <el-text v-if="scope.row.uhdUrl" class="mx-1" type="primary"
+                   @click="handleAudioDialogValue(scope.row.id, scope.row.title, scope.row.uhdUrl)">
+            {{ scope.row.uhdUrl }}
+          </el-text>
         </template>
       </el-table-column>
       <el-table-column prop="musicSize" label="音乐大小（MB）" width="120" align="center"/>
       <el-table-column prop="hdMusicSize" label="高品质音乐大小（MB）" width="120" align="center"/>
       <el-table-column prop="uhdMusicSize" label="超高品质音乐大小（MB）" width="120" align="center"/>
       <el-table-column prop="status" label="状态" width="120" align="center" :formatter="stateFormat"/>
-      <el-table-column prop="action" label="操作" width="400" fixed="right" align="center">
+      <el-table-column prop="action" label="操作" width="200" fixed="right" align="center">
         <template v-slot="scope">
           <el-button type="primary" :icon="Edit" @click="handleDialogValue(scope.row.id)"/>
           <el-popconfirm title="您确定要删除这条记录吗？" @confirm="handleDelete(scope.row.id)">
@@ -96,6 +96,8 @@
           @initMusicList="initMusicList"/>
   <LyricDialog v-model="lyricDialogVisible" :dialogVisible="lyricDialogVisible"
                :id="id" :dialogTitle="lyricDialogTitle"/>
+  <AudioDialog v-model="audioDialogVisible" :dialogVisible="audioDialogVisible"
+               :id="id" :dialogTitle="audioDialogTitle"/>
 </template>
 
 <script setup>
@@ -105,6 +107,7 @@ import {Search, Delete, DocumentAdd, Edit, Tools, RefreshRight} from '@element-p
 import Dialog from './components/dialog';
 import {ElMessage, ElMessageBox} from 'element-plus';
 import LyricDialog from './components/lyricDialog.vue';
+import AudioDialog from "./components/audioDialog.vue";
 import store from "@/store";
 
 const tableData = ref([]);
@@ -119,8 +122,10 @@ const queryForm = ref({
 const currentUser = ref(store.getters.GET_USERINFO);
 const dialogVisible = ref(false);
 const lyricDialogVisible = ref(false);
+const audioDialogVisible = ref(false);
 const dialogTitle = ref("");
 const lyricDialogTitle = ref("");
+const audioDialogTitle = ref("");
 const id = ref(-1);
 const delBtnStatus = ref(true);
 const multipleSelection = ref([]);
@@ -176,6 +181,16 @@ const handleLyricDialogValue = (musicId, musicName, lyric) => {
     lyricDialogTitle.value = "没找到歌词";
   }
   lyricDialogVisible.value = true;
+};
+
+const handleAudioDialogValue = (musicId, musicName, audio) => {
+  id.value = musicId;
+  if (audio) {
+    audioDialogTitle.value = musicName + " : " + audio;
+  } else {
+    audioDialogTitle.value = "没找到音频";
+  }
+  audioDialogVisible.value = true;
 };
 
 const handleDelete = async (id) => {

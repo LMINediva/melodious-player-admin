@@ -56,7 +56,7 @@
             :show-file-list="false"
             :on-success="handleLyricSuccess"
             :before-upload="beforeLyricUpload">
-          <el-text v-if="lyricUrl" class="mx-1">
+          <el-text v-if="form.lyric" class="mx-1">
             {{ form.lyric }}
           </el-text>
           <el-icon v-else class="picture-uploader-icon">
@@ -73,8 +73,8 @@
             :show-file-list="false"
             :on-success="handleAudioSuccess"
             :before-upload="beforeAudioUpload">
-          <audio v-if="url" ref="audioPlayer" controls class="picture">
-            <source :src="url" type="audio/mpeg">
+          <audio v-if="form.url" ref="audioPlayer" controls class="picture">
+            <source :src="audioUrl" type="audio/mpeg">
             您的浏览器不支持audio元素。
           </audio>
           <el-icon v-else class="picture-uploader-icon">
@@ -151,7 +151,7 @@ const headers = ref({
 
 const posterPicUrl = ref("");
 const thumbnailPicUrl = ref("");
-const url = ref("");
+const audioUrl = ref("");
 const audioName = ref("");
 const lyricUrl = ref("");
 const currentUser = ref(store.getters.GET_USERINFO);
@@ -167,7 +167,7 @@ const handleThumbnailPicSuccess = (res) => {
 };
 
 const handleAudioSuccess = (res) => {
-  url.value = getServerUrl() + res.data.src;
+  audioUrl.value = getServerUrl() + res.data.src;
   audioName.value = res.data.title;
   form.value.url = res.data.title;
 };
@@ -261,7 +261,7 @@ const initFormData = async (id) => {
   } else {
     lyricUrl.value = null;
   }
-  url.value = getServerUrl() + 'audio/music/' + form.value.url;
+  audioUrl.value = getServerUrl() + 'audio/music/' + form.value.url;
 };
 
 watch(
@@ -290,7 +290,7 @@ watch(
           status: 0,
           sysUser: {}
         };
-        url.value = null;
+        audioUrl.value = null;
         posterPicUrl.value = null;
         thumbnailPicUrl.value = null;
         lyricUrl.value = null;

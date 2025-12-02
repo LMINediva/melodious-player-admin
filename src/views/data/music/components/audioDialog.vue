@@ -8,15 +8,17 @@
         ref="formRef"
         :model="form"
         label-width="100px">
-      <el-form-item label="歌词">
-        <el-text class="mx-1 text-wrap">{{ lyric }}</el-text>
+      <el-form-item label="音频">
+        <audio ref="audioPlayer" v-if="audioUrl" :src="audioUrl" controls>
+          您的浏览器不支持audio元素。
+        </audio>
       </el-form-item>
     </el-form>
   </el-dialog>
 </template>
 
 <script setup>
-import {defineEmits, defineProps, ref, watch} from 'vue';
+import {defineEmits, defineProps, onMounted, ref, watch} from 'vue';
 import requestUtil, {getServerUrl} from '@/util/request';
 import store from "@/store";
 
@@ -63,24 +65,39 @@ const headers = ref({
 });
 
 const formRef = ref(null);
-const lyric = ref("");
+const audioPlayer = ref(null);
+const isPlaying = ref(false);
+const audioUrl = ref("");
 
 const initFormData = async (id) => {
   const res = await requestUtil.get("data/music/" + id);
   form.value = res.data.music;
-  const lyricRes = await requestUtil.get("audio/lyric/" + form.value.lyric);
-  lyric.value = lyricRes.data;
+  audioUrl.value = getServerUrl() + "audio/music/" + form.value.url;
 };
 
 watch(
     () => props.dialogVisible,
     () => {
       let id = props.id;
+      console.log("id=" + id);
       initFormData(id);
     }
 );
 
+const handlePlay = () => {
+  isPlaying.value = true;
+};
+
+onMounted(() => {
+  if (audioPlayer.value) {
+    audioPlayer.value.addEventListener('play', handlePlay);
+  }
+});
+
 const handleClose = () => {
+  if (isPlaying) {
+    audioPlayer.value.pause();
+  }
 };
 </script>
 
