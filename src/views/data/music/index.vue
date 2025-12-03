@@ -14,7 +14,6 @@
     </el-row>
     <el-table :data="tableData" stripe style="width: 100%" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55"/>
-      <el-table-column prop="type" label="音乐类型" width="80" align="center"/>
       <el-table-column prop="title" label="音乐名" width="100" align="center"/>
       <el-table-column prop="artistName" label="歌手名称" width="100" align="center"/>
       <el-table-column prop="description" label="描述" width="200" align="center">
@@ -35,6 +34,7 @@
         </template>
       </el-table-column>
       <el-table-column prop="sysUser.username" label="创建用户" width="100" align="center"/>
+      <el-table-column prop="type" label="音乐类型" width="80" align="center"/>
       <el-table-column label="歌词" width="100" align="center">
         <template v-slot="scope">
           <el-text v-if="scope.row.lyric" class="mx-1" type="primary"
@@ -73,6 +73,7 @@
       <el-table-column prop="status" label="状态" width="120" align="center" :formatter="stateFormat"/>
       <el-table-column prop="action" label="操作" width="200" fixed="right" align="center">
         <template v-slot="scope">
+          <el-button type="primary" :icon="Tickets" @click="handleDetailDialogValue(scope.row.id)"/>
           <el-button type="primary" :icon="Edit" @click="handleDialogValue(scope.row.id)"/>
           <el-popconfirm title="您确定要删除这条记录吗？" @confirm="handleDelete(scope.row.id)">
             <template #reference>
@@ -98,16 +99,19 @@
                :id="id" :dialogTitle="lyricDialogTitle"/>
   <AudioDialog v-model="audioDialogVisible" :dialogVisible="audioDialogVisible"
                :id="id" :dialogTitle="audioDialogTitle"/>
+  <DetailDialog v-model="detailDialogVisible" :dialogVisible="detailDialogVisible"
+                :id="id" :dialogTitle="detailDialogTitle"/>
 </template>
 
 <script setup>
 import {ref} from 'vue';
 import requestUtil, {getServerUrl} from '@/util/request';
-import {Search, Delete, DocumentAdd, Edit, Tools, RefreshRight} from '@element-plus/icons-vue';
+import {Search, Delete, DocumentAdd, Edit, Tickets, Tools, RefreshRight} from '@element-plus/icons-vue';
 import Dialog from './components/dialog';
 import {ElMessage, ElMessageBox} from 'element-plus';
 import LyricDialog from './components/lyricDialog.vue';
 import AudioDialog from "./components/audioDialog.vue";
+import DetailDialog from "./components/detailDialog.vue";
 import store from "@/store";
 
 const tableData = ref([]);
@@ -123,9 +127,11 @@ const currentUser = ref(store.getters.GET_USERINFO);
 const dialogVisible = ref(false);
 const lyricDialogVisible = ref(false);
 const audioDialogVisible = ref(false);
+const detailDialogVisible = ref(false);
 const dialogTitle = ref("");
 const lyricDialogTitle = ref("");
 const audioDialogTitle = ref("");
+const detailDialogTitle = ref("");
 const id = ref(-1);
 const delBtnStatus = ref(true);
 const multipleSelection = ref([]);
@@ -191,6 +197,17 @@ const handleAudioDialogValue = (musicId, musicName, audio) => {
     audioDialogTitle.value = "没找到音频";
   }
   audioDialogVisible.value = true;
+};
+
+const handleDetailDialogValue = (musicId) => {
+  if (musicId) {
+    id.value = musicId;
+    detailDialogTitle.value = "详情";
+  } else {
+    id.value = -1;
+    detailDialogTitle.value = "没找到详情";
+  }
+  detailDialogVisible.value = true;
 };
 
 const handleDelete = async (id) => {

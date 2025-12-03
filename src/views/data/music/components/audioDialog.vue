@@ -79,7 +79,6 @@ watch(
     () => props.dialogVisible,
     () => {
       let id = props.id;
-      console.log("id=" + id);
       initFormData(id);
     }
 );
@@ -102,8 +101,5 @@ const handleClose = () => {
 </script>
 
 <style scoped>
-.text-wrap {
-  white-space: pre-wrap;
-  word-break: break-word;
-}
+
 </style>

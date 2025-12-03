@@ -70,8 +70,9 @@
       <el-table-column prop="uhdVideoSize" label="超高清MV大小（MB）" width="120" align="center"/>
       <el-table-column prop="duration" label="MV时长" width="100" align="center"/>
       <el-table-column prop="status" label="状态" width="120" align="center" :formatter="stateFormat"/>
-      <el-table-column prop="action" label="操作" width="400" fixed="right" align="center">
+      <el-table-column prop="action" label="操作" width="200" fixed="right" align="center">
         <template v-slot="scope">
+          <el-button type="primary" :icon="Tickets" @click="handleDetailDialogValue(scope.row.id)"/>
           <el-button type="primary" :icon="Edit" @click="handleDialogValue(scope.row.id)"/>
           <el-popconfirm title="您确定要删除这条记录吗？" @confirm="handleDelete(scope.row.id)">
             <template #reference>
@@ -95,16 +96,19 @@
           @initMVList="initMVList"/>
   <VideoDialog v-model="videoDialogVisible" :dialogVisible="videoDialogVisible"
                :id="id" :dialogTitle="videoDialogTitle"/>
+  <DetailDialog v-model="detailDialogVisible" :dialogVisible="detailDialogVisible"
+                :id="id" :dialogTitle="detailDialogTitle"/>
 </template>
 
 <script setup>
 import {ref} from 'vue';
 import requestUtil, {getServerUrl} from '@/util/request';
-import {Search, Delete, DocumentAdd, Edit, Tools, RefreshRight} from '@element-plus/icons-vue';
+import {Search, Delete, DocumentAdd, Edit, Tools, RefreshRight, Tickets} from '@element-plus/icons-vue';
 import moment from 'moment-timezone';
 import Dialog from './components/dialog';
 import {ElMessage, ElMessageBox} from 'element-plus';
 import VideoDialog from './components/videoDialog.vue';
+import DetailDialog from "./components/detailDialog.vue";
 import store from "@/store";
 
 const tableData = ref([]);
@@ -119,8 +123,10 @@ const queryForm = ref({
 const currentUser = ref(store.getters.GET_USERINFO);
 const dialogVisible = ref(false);
 const videoDialogVisible = ref(false);
+const detailDialogVisible = ref(false);
 const dialogTitle = ref("");
 const videoDialogTitle = ref("");
+const detailDialogTitle = ref("");
 const id = ref(-1);
 const delBtnStatus = ref(true);
 const multipleSelection = ref([]);
@@ -166,6 +172,17 @@ const handleDialogValue = (mvId) => {
     dialogTitle.value = "在线MV添加";
   }
   dialogVisible.value = true;
+};
+
+const handleDetailDialogValue = (mvId) => {
+  if (mvId) {
+    id.value = mvId;
+    detailDialogTitle.value = "详情";
+  } else {
+    id.value = -1;
+    detailDialogTitle.value = "没找到详情";
+  }
+  detailDialogVisible.value = true;
 };
 
 const handleVideoDialogValue = (mvId, mvName, url) => {
