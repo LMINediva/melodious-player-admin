@@ -174,6 +174,16 @@ const handleDialogValue = (mvId) => {
   dialogVisible.value = true;
 };
 
+const handleVideoDialogValue = (mvId, mvName, url) => {
+  id.value = mvId;
+  if (url) {
+    videoDialogTitle.value = mvName + " : " + url;
+  } else {
+    videoDialogTitle.value = "没找到MV";
+  }
+  videoDialogVisible.value = true;
+};
+
 const handleDetailDialogValue = (mvId) => {
   if (mvId) {
     id.value = mvId;
@@ -183,16 +193,6 @@ const handleDetailDialogValue = (mvId) => {
     detailDialogTitle.value = "没找到详情";
   }
   detailDialogVisible.value = true;
-};
-
-const handleVideoDialogValue = (mvId, mvName, url) => {
-  id.value = mvId;
-  if (url) {
-    videoDialogTitle.value = mvName + " : " + url;
-  } else {
-    videoDialogTitle.value = "没找到MV";
-  }
-  videoDialogVisible.value = true;
 };
 
 const handleDelete = async (id) => {
