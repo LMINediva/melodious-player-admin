@@ -42,6 +42,33 @@
       <el-form-item label="类型：">
         <el-text class="mx-1">{{ form.category }}</el-text>
       </el-form-item>
+      <el-form-item label="状态：">
+        <el-text class="mx-1">{{ stateFormat(form.status) }}</el-text>
+      </el-form-item>
+      <el-form-item label="总浏览量：">
+        <el-text class="mx-1">{{ form.totalViews }}</el-text>
+      </el-form-item>
+      <el-form-item label="点赞量：">
+        <el-text class="mx-1">{{ form.totalFavorites }}</el-text>
+      </el-form-item>
+      <el-form-item label="创建时间：">
+        <el-text class="mx-1">{{ formatDateTime(form.createTime) }}</el-text>
+      </el-form-item>
+      <el-form-item label="更新时间：">
+        <el-text class="mx-1">{{ formatDateTime(form.updateTime) }}</el-text>
+      </el-form-item>
+      <el-form-item label="积分：">
+        <el-text class="mx-1">{{ form.integral }}</el-text>
+      </el-form-item>
+      <el-form-item label="周积分：">
+        <el-text class="mx-1">{{ form.weekIntegral }}</el-text>
+      </el-form-item>
+      <el-form-item label="总积分：">
+        <el-text class="mx-1">{{ form.totalUser }}</el-text>
+      </el-form-item>
+      <el-form-item label="排名：">
+        <el-text class="mx-1">{{ form.rank }}</el-text>
+      </el-form-item>
     </el-form>
   </el-dialog>
 </template>
@@ -50,7 +77,7 @@
 import {defineProps, ref, watch} from 'vue';
 import requestUtil, {getServerUrl} from '@/util/request';
 import store from "@/store";
-import {Delete} from "@element-plus/icons-vue";
+import moment from "moment-timezone";
 
 const props = defineProps(
     {
@@ -118,6 +145,13 @@ watch(
       initFormData(id);
     }
 );
+
+const formatDateTime = (time) => {
+  if (!time) {
+    return '';
+  }
+  return moment(time).format("YYYY-MM-DD HH:mm:ss");
+};
 
 const stateFormat = (status) => {
   if (status === 0) {
