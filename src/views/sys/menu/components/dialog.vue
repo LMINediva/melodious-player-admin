@@ -37,6 +37,9 @@
       <el-form-item label="权限标识" prop="perms">
         <el-input v-model.trim="form.perms"/>
       </el-form-item>
+      <el-form-item label="路由地址" prop="path">
+        <el-input v-model.trim="form.path"/>
+      </el-form-item>
       <el-form-item label="组件路径" prop="component">
         <el-input v-model.trim="form.component"/>
       </el-form-item>
@@ -92,6 +95,7 @@ const form = ref({
   icon: '',
   name: '',
   perms: '',
+  path: '',
   component: '',
   orderNum: 1
 });
@@ -125,6 +129,7 @@ watch(
           icon: '',
           name: '',
           perms: '',
+          path: '',
           component: '',
           orderNum: 1
         };

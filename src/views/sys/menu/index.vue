@@ -30,7 +30,7 @@
         </template>
       </el-table-column>
       <el-table-column prop="createTime" label="创建时间" width="200" align="center"/>
-      <el-table-column prop="action" label="操作" width="400" fixed="right" align="center">
+      <el-table-column prop="action" label="操作" width="200" fixed="right" align="center">
         <template v-slot="scope">
           <el-button type="primary" :icon="Edit" @click="handleDialogValue(scope.row.id)"/>
           <el-popconfirm title="您确定要删除这条记录吗？" @confirm="handleDelete(scope.row.id)">
@@ -49,7 +49,7 @@
 
 <script setup>
 import {defineProps, ref} from 'vue';
-import requestUtil, {getServerUrl} from '@/util/request';
+import requestUtil from '@/util/request';
 import {Search, Delete, DocumentAdd, Edit, Tools, RefreshRight} from '@element-plus/icons-vue';
 import Dialog from './components/dialog';
 import {ElMessage, ElMessageBox} from 'element-plus';
