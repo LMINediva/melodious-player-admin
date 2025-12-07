@@ -15,32 +15,37 @@
             <el-option :label="item.name" :value="item.id"></el-option>
             <template v-for="child in item.children">
               <el-option :label="child.name" :value="child.id">
-                <span>{{ "    -- " + child.name }}</span>
+                <span>{{ "  -- " + child.name }}</span>
               </el-option>
+              <template v-for="secondChild in child.children">
+                <el-option :label="secondChild.name" :value="secondChild.id">
+                  <span>{{ "    ---- " + secondChild.name }}</span>
+                </el-option>
+              </template>
             </template>
           </template>
         </el-select>
       </el-form-item>
       <el-form-item label="菜单类型" prop="menuType" label-width="100px">
-        <el-radio-group v-model="form.menuType">
+        <el-radio-group v-model="form.menuType" @change="handleRadioChange">
           <el-radio :value="'M'">目录</el-radio>
           <el-radio :value="'C'">菜单</el-radio>
           <el-radio :value="'F'">按钮</el-radio>
         </el-radio-group>
       </el-form-item>
-      <el-form-item label="菜单图标" prop="icon">
+      <el-form-item label="菜单图标" prop="icon" v-show="isIconVisible">
         <el-input v-model.trim="form.icon"/>
       </el-form-item>
       <el-form-item label="菜单名称" prop="name">
         <el-input v-model.trim="form.name"/>
       </el-form-item>
-      <el-form-item label="权限标识" prop="perms">
+      <el-form-item label="权限标识" prop="perms" v-show="isPermsVisible">
         <el-input v-model.trim="form.perms"/>
       </el-form-item>
-      <el-form-item label="路由地址" prop="path">
+      <el-form-item label="路由地址" prop="path" v-show="isPathVisible">
         <el-input v-model.trim="form.path"/>
       </el-form-item>
-      <el-form-item label="组件路径" prop="component">
+      <el-form-item label="组件路径" prop="component" v-show="isComponentVisible">
         <el-input v-model.trim="form.component"/>
       </el-form-item>
       <el-form-item label="显示顺序" prop="orderNum">
@@ -62,6 +67,11 @@ import requestUtil, {getServerUrl} from '@/util/request';
 import {ElMessage} from 'element-plus';
 
 const tableData = ref([]);
+const menu = ref([]);
+const isIconVisible = ref(true);
+const isPermsVisible = ref(false);
+const isPathVisible = ref(true);
+const isComponentVisible = ref(false);
 
 const props = defineProps(
     {
@@ -118,7 +128,22 @@ watch(
     () => props.dialogVisible,
     () => {
       let id = props.id;
-      tableData.value = props.tableData;
+      menu.value = {
+        id: -2,
+        parentId: '0',
+        menuType: "M",
+        icon: '',
+        name: '主类目',
+        perms: '',
+        path: '',
+        component: '',
+        orderNum: 1,
+        children: []
+      };
+      menu.value.children = props.tableData;
+      if (tableData.value.length === 0) {
+        tableData.value.push(menu.value);
+      }
       if (id !== -1) {
         initFormData(id);
       } else {
@@ -138,6 +163,25 @@ watch(
 );
 
 const emits = defineEmits(['update:modelValue', 'initMenuList']);
+
+const handleRadioChange = (value) => {
+  if (value === "M") {
+    isIconVisible.value = true;
+    isPermsVisible.value = false;
+    isPathVisible.value = true;
+    isComponentVisible.value = false;
+  } else if (value === "C") {
+    isIconVisible.value = true;
+    isPermsVisible.value = true;
+    isPathVisible.value = true;
+    isComponentVisible.value = true;
+  } else if (value === "F") {
+    isIconVisible.value = false;
+    isPermsVisible.value = true;
+    isPathVisible.value = false;
+    isComponentVisible.value = false;
+  }
+};
 
 const handleClose = () => {
   emits('update:modelValue', false)
