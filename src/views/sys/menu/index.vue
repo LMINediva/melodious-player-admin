@@ -43,8 +43,7 @@
     </el-table>
   </div>
   <Dialog v-model="dialogVisible" :tableData="tableData" :dialogVisible="dialogVisible" :id="id"
-          :dialogTitle="dialogTitle"
-          @initMenuList="initMenuList"/>
+          :dialogTitle="dialogTitle" @initMenuList="initMenuList"/>
 </template>
 
 <script setup>

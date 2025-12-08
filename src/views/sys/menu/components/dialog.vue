@@ -48,6 +48,9 @@
       <el-form-item label="组件路径" prop="component" v-show="isComponentVisible">
         <el-input v-model.trim="form.component"/>
       </el-form-item>
+      <el-form-item label="菜单备注" prop="remark">
+        <el-input v-model.trim="form.remark"/>
+      </el-form-item>
       <el-form-item label="显示顺序" prop="orderNum">
         <el-input-number v-model="form.orderNum" :min="1" label="显示顺序"></el-input-number>
       </el-form-item>
@@ -107,7 +110,8 @@ const form = ref({
   perms: '',
   path: '',
   component: '',
-  orderNum: 1
+  orderNum: 1,
+  remark: ''
 });
 
 const rules = ref({
@@ -129,8 +133,8 @@ watch(
     () => {
       let id = props.id;
       menu.value = {
-        id: -2,
-        parentId: '0',
+        id: 0,
+        parentId: '',
         menuType: "M",
         icon: '',
         name: '主类目',
@@ -142,6 +146,9 @@ watch(
       };
       menu.value.children = props.tableData;
       if (tableData.value.length === 0) {
+        tableData.value.push(menu.value);
+      } else {
+        tableData.value = [];
         tableData.value.push(menu.value);
       }
       if (id !== -1) {
@@ -156,7 +163,8 @@ watch(
           perms: '',
           path: '',
           component: '',
-          orderNum: 1
+          orderNum: 1,
+          remark: ''
         };
       }
     }

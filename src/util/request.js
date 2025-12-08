@@ -1,6 +1,7 @@
 // 引入axios
-import axios from 'axios';
+import axios, {request} from 'axios';
 import store from '@/store';
+import {ElMessageBox} from 'element-plus';
 
 let baseUrl = "http://127.0.0.1:8082/";
 // 创建axios实例
@@ -11,13 +12,14 @@ const httpService = axios.create({
     // 请求超时时间
     timeout: 10000 // 需自定义
 });
+// 是否显示重新登录
+let isReLogin = {show: false}
 
 //添加请求和响应拦截器
 // 添加请求拦截器
 httpService.interceptors.request.use(function (config) {
     // 在发送请求之前做些什么
     //config.headers.token=window.sessionStorage.getItem('token');
-    console.log("store=" + store.getters.GET_TOKEN);
     config.headers.token = store.getters.GET_TOKEN;
     return config;
 }, function (error) {
@@ -27,7 +29,29 @@ httpService.interceptors.request.use(function (config) {
 
 // 添加响应拦截器
 httpService.interceptors.response.use(function (response) {
+    const code = response.data.code;
     // 对响应数据做点什么
+    if (code === 401) {
+        if (!isReLogin.show) {
+            isReLogin.show = true;
+            ElMessageBox.confirm(
+                '登录状态已过期，您可以继续留在该页面，或者重新登录',
+                '系统提示',
+                {
+                    confirmButtonText: '重新登录',
+                    cancelButtonText: '取消',
+                    type: 'warning',
+                }
+            )
+                .then(() => {
+                    isReLogin.show = false;
+                    store.dispatch('logout');
+                })
+                .catch(() => {
+                    isReLogin.show = false;
+                });
+        }
+    }
     return response;
 }, function (error) {
     // 对响应错误做点什么
@@ -76,26 +100,6 @@ export function post(url, params = {}) {
     });
 }
 
-/*
- *  文件上传
- *  url:请求地址
- *  params:参数
- * */
-export function fileUpload(url, params = {}) {
-    return new Promise((resolve, reject) => {
-        httpService({
-            url: url,
-            method: 'post',
-            data: params,
-            headers: {'Content-Type': 'multipart/form-data'}
-        }).then(response => {
-            resolve(response);
-        }).catch(error => {
-            reject(error);
-        });
-    });
-}
-
 export function getServerUrl() {
     return baseUrl;
 }
@@ -103,6 +107,5 @@ export function getServerUrl() {
 export default {
     get,
     post,
-    fileUpload,
     getServerUrl
 };
