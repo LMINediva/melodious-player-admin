@@ -71,6 +71,7 @@
             class="picture-uploader"
             :action="getServerUrl() + 'data/music/uploadAudio'"
             :show-file-list="false"
+            :on-progress="handleAudioProgress"
             :on-success="handleAudioSuccess"
             :before-upload="beforeAudioUpload">
           <audio v-if="form.url" ref="audioPlayer" controls class="picture">
@@ -83,6 +84,9 @@
         </el-upload>
         <el-button @click="handleConfirmUploadAudio">确认更换</el-button>
       </el-form-item>
+      <div v-if="uploadAudioProgress > 0" class="progress-container">
+        <el-progress :percentage="uploadAudioProgress" :status="uploadAudioStatus"/>
+      </div>
       <el-form-item label="状态" prop="status">
         <el-radio-group v-model="form.status">
           <el-radio :value="0">正常</el-radio>
@@ -155,6 +159,13 @@ const audioUrl = ref("");
 const audioName = ref("");
 const lyricUrl = ref("");
 const currentUser = ref(store.getters.GET_USERINFO);
+const uploadAudioProgress = ref(0);
+const uploadAudioStatus = ref("");
+
+const handleAudioProgress = (event, file, fileList) => {
+  uploadAudioProgress.value = event.percent;
+  uploadAudioStatus.value = "";
+}
 
 const handlePosterPicSuccess = (res) => {
   posterPicUrl.value = getServerUrl() + res.data.src;
@@ -167,6 +178,7 @@ const handleThumbnailPicSuccess = (res) => {
 };
 
 const handleAudioSuccess = (res) => {
+  uploadAudioStatus.value = "success";
   audioUrl.value = getServerUrl() + res.data.src;
   audioName.value = res.data.title;
   form.value.url = res.data.title;
@@ -326,6 +338,8 @@ const handleClose = () => {
       handleDeleteUploadFileCache();
     }
   }
+  uploadAudioProgress.value = 0;
+  uploadAudioStatus.value = "";
 };
 
 const handleConfirmUploadPosterPicture = async () => {
@@ -359,6 +373,8 @@ const handleConfirmUploadLyric = async () => {
 }
 
 const handleConfirmUploadAudio = async () => {
+  uploadAudioProgress.value = 0;
+  uploadAudioStatus.value = "";
   let result = await requestUtil.post("data/music/updateAudio", form.value);
   let data = result.data;
   if (data.code === 200) {
@@ -380,6 +396,8 @@ const handleConfirm = () => {
       let result = await requestUtil.post("data/music/save", form.value);
       let data = result.data;
       if (data.code === 200) {
+        uploadAudioProgress.value = 0;
+        uploadAudioStatus.value = "";
         ElMessage.success("执行成功！");
         formRef.value.resetFields();
         emits("initMusicList");
@@ -419,5 +437,10 @@ const handleConfirm = () => {
   width: 120px;
   height: 120px;
   display: block;
+}
+
+.progress-container {
+  padding-left: 20px;
+  padding-right: 20px;
 }
 </style>
