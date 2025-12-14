@@ -24,7 +24,9 @@
             class="picture-uploader"
             :action="getServerUrl() + 'data/music/uploadImage'"
             :show-file-list="false"
+            :on-progress="handlePosterPicProgress"
             :on-success="handlePosterPicSuccess"
+            :on-error="handlePosterPicError"
             :before-upload="beforePictureUpload">
           <img v-if="posterPicUrl" :src="posterPicUrl" class="picture" alt="海报图片"/>
           <el-icon v-else class="picture-uploader-icon">
@@ -33,13 +35,18 @@
         </el-upload>
         <el-button @click="handleConfirmUploadPosterPicture">确认更换</el-button>
       </el-form-item>
+      <div v-if="uploadPosterPicProgress > 0" class="progress-container">
+        <el-progress :percentage="uploadPosterPicProgress" :status="uploadPosterPicStatus"/>
+      </div>
       <el-form-item label="缩略图" prop="thumbnailPic">
         <el-upload
             :headers="headers"
             class="picture-uploader"
             :action="getServerUrl() + 'data/music/uploadImage'"
             :show-file-list="false"
+            :on-progress="handleThumbnailPicProgress"
             :on-success="handleThumbnailPicSuccess"
+            :on-error="handleThumbnailPicError"
             :before-upload="beforePictureUpload">
           <img v-if="thumbnailPicUrl" :src="thumbnailPicUrl" class="picture" alt="缩略图"/>
           <el-icon v-else class="picture-uploader-icon">
@@ -48,13 +55,18 @@
         </el-upload>
         <el-button @click="handleConfirmUploadThumbnailPicture">确认更换</el-button>
       </el-form-item>
+      <div v-if="uploadThumbnailPicProgress > 0" class="progress-container">
+        <el-progress :percentage="uploadThumbnailPicProgress" :status="uploadPosterPicStatus"/>
+      </div>
       <el-form-item label="歌词" prop="lyric">
         <el-upload
             :headers="headers"
             class="picture-uploader"
             :action="getServerUrl() + 'data/music/uploadLyric'"
             :show-file-list="false"
+            :on-progress="handleLyricProgress"
             :on-success="handleLyricSuccess"
+            :on-error="handleLyricError"
             :before-upload="beforeLyricUpload">
           <el-text v-if="form.lyric" class="mx-1">
             {{ form.lyric }}
@@ -65,6 +77,9 @@
         </el-upload>
         <el-button @click="handleConfirmUploadLyric">确认更换</el-button>
       </el-form-item>
+      <div v-if="uploadLyricProgress > 0" class="progress-container">
+        <el-progress :percentage="uploadLyricProgress" :status="uploadLyricStatus"/>
+      </div>
       <el-form-item label="音乐" prop="url">
         <el-upload
             :headers="headers"
@@ -159,22 +174,75 @@ const audioUrl = ref("");
 const audioName = ref("");
 const lyricUrl = ref("");
 const currentUser = ref(store.getters.GET_USERINFO);
+const uploadPosterPicProgress = ref(0);
+const uploadPosterPicStatus = ref("");
+const uploadThumbnailPicProgress = ref(0);
+const uploadThumbnailPicStatus = ref("");
+const uploadLyricProgress = ref(0);
+const uploadLyricStatus = ref("");
 const uploadAudioProgress = ref(0);
 const uploadAudioStatus = ref("");
+
+const handlePosterPicProgress = (event, file, fileList) => {
+  uploadPosterPicProgress.value = event.percent;
+  uploadPosterPicStatus.value = "";
+};
+
+const handlePosterPicSuccess = (res) => {
+  uploadPosterPicStatus.value = "success";
+  posterPicUrl.value = getServerUrl() + res.data.src;
+  form.value.posterPic = res.data.title;
+  setTimeout(() => {
+    uploadPosterPicProgress.value = 0;
+  }, 2000);
+};
+
+const handlePosterPicError = (error, file, fileList) => {
+  uploadPosterPicStatus.value = "exception";
+  ElMessage.error("音乐海报图片上传失败，请重试！");
+};
+
+const handleThumbnailPicProgress = (event, file, fileList) => {
+  uploadThumbnailPicProgress.value = event.percent;
+  uploadThumbnailPicStatus.value = "";
+};
+
+const handleThumbnailPicSuccess = (res) => {
+  uploadThumbnailPicStatus.value = "success";
+  thumbnailPicUrl.value = getServerUrl() + res.data.src;
+  form.value.thumbnailPic = res.data.title;
+  setTimeout(() => {
+    uploadThumbnailPicProgress.value = 0;
+  }, 2000);
+};
+
+const handleThumbnailPicError = (error, file, fileList) => {
+  uploadThumbnailPicStatus.value = "exception";
+  ElMessage.error("音乐缩略图图片上传失败，请重试！");
+};
+
+const handleLyricProgress = (event, file, fileList) => {
+  uploadLyricProgress.value = event.percent;
+  uploadLyricStatus.value = "";
+};
+
+const handleLyricSuccess = (res) => {
+  uploadLyricStatus.value = "success";
+  lyricUrl.value = getServerUrl() + res.data.src;
+  form.value.lyric = res.data.title;
+  setTimeout(() => {
+    uploadLyricProgress.value = 0;
+  }, 2000);
+};
+
+const handleLyricError = (error, file, fileList) => {
+  uploadLyricStatus.value = "exception";
+  ElMessage.error("歌词文件上传失败，请重试！");
+};
 
 const handleAudioProgress = (event, file, fileList) => {
   uploadAudioProgress.value = event.percent;
   uploadAudioStatus.value = "";
-}
-
-const handlePosterPicSuccess = (res) => {
-  posterPicUrl.value = getServerUrl() + res.data.src;
-  form.value.posterPic = res.data.title;
-};
-
-const handleThumbnailPicSuccess = (res) => {
-  thumbnailPicUrl.value = getServerUrl() + res.data.src;
-  form.value.thumbnailPic = res.data.title;
 };
 
 const handleAudioSuccess = (res) => {
@@ -182,11 +250,14 @@ const handleAudioSuccess = (res) => {
   audioUrl.value = getServerUrl() + res.data.src;
   audioName.value = res.data.title;
   form.value.url = res.data.title;
+  setTimeout(() => {
+    uploadAudioProgress.value = 0;
+  }, 2000);
 };
 
-const handleLyricSuccess = (res) => {
-  lyricUrl.value = getServerUrl() + res.data.src;
-  form.value.lyric = res.data.title;
+const handleAudioError = (error, file, fileList) => {
+  uploadAudioStatus.value = "exception";
+  ElMessage.error("歌词文件上传失败，请重试！");
 };
 
 const beforePictureUpload = (file) => {
