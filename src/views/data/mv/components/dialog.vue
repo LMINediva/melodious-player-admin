@@ -33,7 +33,9 @@
             class="picture-uploader"
             :action="getServerUrl() + 'data/mv/uploadImage'"
             :show-file-list="false"
+            :on-progress="handlePosterPicProgress"
             :on-success="handlePosterPicSuccess"
+            :on-error="handlePosterPicError"
             :before-upload="beforePictureUpload">
           <img v-if="posterPicUrl" :src="posterPicUrl" class="picture" alt="海报图片"/>
           <el-icon v-else class="picture-uploader-icon">
@@ -42,13 +44,18 @@
         </el-upload>
         <el-button @click="handleConfirmUploadPosterPicture">确认更换</el-button>
       </el-form-item>
+      <div v-if="uploadPosterPicProgress > 0" class="progress-container">
+        <el-progress :percentage="uploadPosterPicProgress" :status="uploadPosterPicStatus"/>
+      </div>
       <el-form-item label="缩略图" prop="thumbnailPic">
         <el-upload
             :headers="headers"
             class="picture-uploader"
             :action="getServerUrl() + 'data/mv/uploadImage'"
             :show-file-list="false"
+            :on-progress="handleThumbnailPicProgress"
             :on-success="handleThumbnailPicSuccess"
+            :on-error="handleThumbnailPicError"
             :before-upload="beforePictureUpload">
           <img v-if="thumbnailPicUrl" :src="thumbnailPicUrl" class="picture" alt="缩略图"/>
           <el-icon v-else class="picture-uploader-icon">
@@ -57,13 +64,18 @@
         </el-upload>
         <el-button @click="handleConfirmUploadThumbnailPicture">确认更换</el-button>
       </el-form-item>
+      <div v-if="uploadThumbnailPicProgress > 0" class="progress-container">
+        <el-progress :percentage="uploadThumbnailPicProgress" :status="uploadPosterPicStatus"/>
+      </div>
       <el-form-item label="MV" prop="url">
         <el-upload
             :headers="headers"
             class="picture-uploader"
             :action="getServerUrl() + 'data/mv/uploadVideo'"
             :show-file-list="false"
+            :on-progress="handleVideoProgress"
             :on-success="handleVideoSuccess"
+            :on-error="handleVideoError"
             :before-upload="beforeVideoUpload">
           <video ref="videoPlayer" v-if="url" :src="url" @loadedmetadata="getVideoDuration"
                  width="320" height="240" controls>
@@ -75,6 +87,9 @@
         </el-upload>
         <el-button @click="handleConfirmUploadVideo">确认更换</el-button>
       </el-form-item>
+      <div v-if="uploadVideoProgress > 0" class="progress-container">
+        <el-progress :percentage="uploadVideoProgress" :status="uploadVideoStatus"/>
+      </div>
       <el-form-item label="发行时间" prop="regdate">
         <el-date-picker
             v-model="form.regdate"
@@ -167,21 +182,69 @@ const videoName = ref("");
 const videoPlayer = ref(null);
 const areas = ref([]);
 const currentUser = ref(store.getters.GET_USERINFO);
+const uploadPosterPicProgress = ref(0);
+const uploadPosterPicStatus = ref("");
+const uploadThumbnailPicProgress = ref(0);
+const uploadThumbnailPicStatus = ref("");
+const uploadVideoProgress = ref(0);
+const uploadVideoStatus = ref("");
+
+const handlePosterPicProgress = (event, file, fileList) => {
+  uploadPosterPicProgress.value = event.percent;
+  uploadPosterPicStatus.value = "";
+};
 
 const handlePosterPicSuccess = (res) => {
+  uploadPosterPicStatus.value = "success";
   posterPicUrl.value = getServerUrl() + res.data.src;
   form.value.posterPic = res.data.title;
+  setTimeout(() => {
+    uploadPosterPicProgress.value = 0;
+  }, 2000);
+};
+
+const handlePosterPicError = (error, file, fileList) => {
+  uploadPosterPicStatus.value = "exception";
+  ElMessage.error("音乐海报图片上传失败，请重试！");
+};
+
+const handleThumbnailPicProgress = (event, file, fileList) => {
+  uploadThumbnailPicProgress.value = event.percent;
+  uploadThumbnailPicStatus.value = "";
 };
 
 const handleThumbnailPicSuccess = (res) => {
+  uploadThumbnailPicStatus.value = "success";
   thumbnailPicUrl.value = getServerUrl() + res.data.src;
   form.value.thumbnailPic = res.data.title;
+  setTimeout(() => {
+    uploadThumbnailPicProgress.value = 0;
+  }, 2000);
+};
+
+const handleThumbnailPicError = (error, file, fileList) => {
+  uploadThumbnailPicStatus.value = "exception";
+  ElMessage.error("音乐缩略图图片上传失败，请重试！");
+};
+
+const handleVideoProgress = (event, file, fileList) => {
+  uploadVideoProgress.value = event.percent;
+  uploadVideoStatus.value = "";
 };
 
 const handleVideoSuccess = (res) => {
+  uploadVideoStatus.value = "success";
   url.value = getServerUrl() + res.data.src;
   videoName.value = res.data.title;
   form.value.url = res.data.title;
+  setTimeout(() => {
+    uploadVideoProgress.value = 0;
+  }, 2000);
+};
+
+const handleVideoError = (error, file, fileList) => {
+  uploadVideoStatus.value = "exception";
+  ElMessage.error("MV文件上传失败，请重试！");
 };
 
 const beforePictureUpload = (file) => {
@@ -423,5 +486,10 @@ const handleConfirm = () => {
   width: 120px;
   height: 120px;
   display: block;
+}
+
+.progress-container {
+  padding-left: 20px;
+  padding-right: 20px;
 }
 </style>

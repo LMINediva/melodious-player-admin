@@ -88,6 +88,7 @@
             :show-file-list="false"
             :on-progress="handleAudioProgress"
             :on-success="handleAudioSuccess"
+            :on-error="handleAudioError"
             :before-upload="beforeAudioUpload">
           <audio v-if="form.url" ref="audioPlayer" controls class="picture">
             <source :src="audioUrl" type="audio/mpeg">
