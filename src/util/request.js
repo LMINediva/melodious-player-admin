@@ -10,7 +10,7 @@ const httpService = axios.create({
     // baseURL: process.env.BASE_API, // 需自定义
     baseURL: baseUrl,
     // 请求超时时间
-    timeout: 10000 // 需自定义
+    timeout: 60000 // 需自定义
 });
 // 是否显示重新登录
 let isReLogin = {show: false}

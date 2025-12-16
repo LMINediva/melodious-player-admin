@@ -24,7 +24,9 @@
             class="picture-uploader"
             :action="getServerUrl() + 'data/list/uploadImage'"
             :show-file-list="false"
+            :on-progress="handleThumbnailPicProgress"
             :on-success="handleThumbnailPicSuccess"
+            :on-error="handleThumbnailPicError"
             :before-upload="beforePictureUpload">
           <img v-if="thumbnailPicUrl" :src="thumbnailPicUrl" class="picture" alt="缩略图"/>
           <el-icon v-else class="picture-uploader-icon">
@@ -33,6 +35,9 @@
         </el-upload>
         <el-button @click="handleConfirmUploadThumbnailPicture">确认更换</el-button>
       </el-form-item>
+      <div v-if="uploadThumbnailPicProgress > 0" class="progress-container">
+        <el-progress :percentage="uploadThumbnailPicProgress" :status="uploadPosterPicStatus"/>
+      </div>
       <el-form-item label="MV" prop="mvList">
         <el-button v-if="form.id !== -1" type="success" :icon="DocumentAdd"
                    @click="handleDialogValue(null)">新增
@@ -178,10 +183,26 @@ const mvs = ref([]);
 const multipleSelection = ref([]);
 const multipleTableRef = ref(null);
 const currentUser = ref(store.getters.GET_USERINFO);
+const uploadThumbnailPicProgress = ref(0);
+const uploadThumbnailPicStatus = ref("");
+
+const handleThumbnailPicProgress = (event, file, fileList) => {
+  uploadThumbnailPicProgress.value = event.percent;
+  uploadThumbnailPicStatus.value = "";
+};
 
 const handleThumbnailPicSuccess = (res) => {
+  uploadThumbnailPicStatus.value = "success";
   thumbnailPicUrl.value = getServerUrl() + res.data.src;
   form.value.thumbnailPic = res.data.title;
+  setTimeout(() => {
+    uploadThumbnailPicProgress.value = 0;
+  }, 2000);
+};
+
+const handleThumbnailPicError = (error, file, fileList) => {
+  uploadThumbnailPicStatus.value = "exception";
+  ElMessage.error("音乐缩略图图片上传失败，请重试！");
 };
 
 const beforePictureUpload = (file) => {
@@ -435,5 +456,10 @@ const handleConfirm = () => {
   width: 120px;
   height: 120px;
   display: block;
+}
+
+.progress-container {
+  padding-left: 20px;
+  padding-right: 20px;
 }
 </style>
