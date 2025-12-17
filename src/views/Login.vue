@@ -52,6 +52,7 @@
             size="large"
             type="primary"
             style="width:100%;"
+            :loading="isLoading"
             @click.prevent="handleLogin"
             @keydown.enter="keyDown">
           <span>登 录</span>
@@ -87,17 +88,17 @@ const loginRules = {
   username: [{required: true, trigger: "blur", message: "请输入您的账号"}],
   password: [{required: true, trigger: "blur", message: "请输入您的密码"}]
 };
-const loading = ref(null);
+const isLoading = ref(false);
 
 const refreshCaptchaImage = () => {
   captchaImage.value = getServerUrl() + 'captcha?d=' + new Date() * 1;
-}
+};
 
 const handleLogin = () => {
   loginRef.value.validate(async (valid) => {
     if (valid) {
-      // 显示登录中提示框
-      loading.value = ElLoading.service({fullscreen: true, lock: true, text: '登录中，请稍后...'});
+      // 显示登录按钮的加载状态
+      isLoading.value = true;
       const res = await requestUtil.post("compareCode", {code: loginForm.value.code});
       if (res.data.code === 200) {
         // 勾选了记住密码，在cookie中设置记住用户名和密码
@@ -121,16 +122,16 @@ const handleLogin = () => {
           store.commit('SET_TOKEN', token);
           store.commit('SET_USERINFO', currentUser);
           router.replace("/");
-          // 隐藏登录中提示框
-          loading.value.close();
+          // 隐藏登录按钮的加载状态
+          isLoading.value = false;
         } else {
-          // 隐藏登录中提示框
-          loading.value.close();
+          // 隐藏登录按钮的加载状态
+          isLoading.value = false;
           ElMessage.error(data.msg);
         }
       } else {
-        // 隐藏登录中提示框
-        loading.value.close();
+        // 隐藏登录按钮的加载状态
+        isLoading.value = false;
         ElMessage.error(res.data.msg);
       }
     } else {
