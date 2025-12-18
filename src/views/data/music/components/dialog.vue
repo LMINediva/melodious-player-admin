@@ -398,7 +398,7 @@ const handleDeleteUploadFileCache = async () => {
   } else {
     ElMessage.error(data.msg);
   }
-}
+};
 
 const emits = defineEmits(['update:modelValue', 'initMusicList']);
 

@@ -9,7 +9,9 @@
         class="avatar-uploader"
         :action="getServerUrl()+'sys/user/uploadImage'"
         :show-file-list="false"
+        :on-progress="handleAvatarProgress"
         :on-success="handleAvatarSuccess"
+        :on-error="handleAvatarError"
         :before-upload="beforeAvatarUpload">
       <img v-if="imageUrl" :src="imageUrl" class="avatar"/>
       <el-icon v-else class="avatar-uploader-icon">
@@ -17,6 +19,9 @@
       </el-icon>
     </el-upload>
     <el-button @click="handleConfirm">确认更换</el-button>
+    <div v-if="uploadAvatarProgress > 0">
+      <el-progress :percentage="uploadAvatarProgress" :status="uploadAvatarStatus"/>
+    </div>
   </el-form>
 </template>
 
@@ -48,15 +53,31 @@ const form = ref({
 });
 
 const formRef = ref(null);
-
 const imageUrl = ref("");
+const uploadAvatarProgress = ref(0);
+const uploadAvatarStatus = ref("");
+const isConfirmChangeAvatar = ref(false);
 
 form.value = props.user;
 imageUrl.value = getServerUrl() + 'image/userAvatar/' + form.value.avatar;
 
+const handleAvatarProgress = (event, file, fileList) => {
+  uploadAvatarProgress.value = event.percent;
+  uploadAvatarStatus.value = "";
+};
+
 const handleAvatarSuccess = (res) => {
+  uploadAvatarStatus.value = "success";
   imageUrl.value = getServerUrl() + res.data.src;
   form.value.avatar = res.data.title;
+  setTimeout(() => {
+    uploadAvatarProgress.value = 0;
+  }, 2000);
+};
+
+const handleAvatarError = (error, file, fileList) => {
+  uploadAvatarStatus.value = "exception";
+  ElMessage.error("头像图片上传失败，请重试！");
 };
 
 const beforeAvatarUpload = (file) => {
@@ -69,7 +90,7 @@ const beforeAvatarUpload = (file) => {
     ElMessage.error('图片大小不能超过2M!');
   }
   return isJPG && isLt2M;
-}
+};
 
 const handleConfirm = async () => {
   let result = await requestUtil.post("sys/user/updateAvatar", form.value);
@@ -80,7 +101,18 @@ const handleConfirm = async () => {
   } else {
     ElMessage.error(data.msg);
   }
-}
+};
+
+const handleDeleteUploadFileCache = async () => {
+  let result = await requestUtil.post("sys/user/deleteUploadFileCache", form.value);
+  let data = result.data;
+  if (data.code === 200) {
+    form.value.avatar = "";
+    ElMessage.success("文件上传缓存删除成功！");
+  } else {
+    ElMessage.error(data.msg);
+  }
+};
 </script>
 
 <style>

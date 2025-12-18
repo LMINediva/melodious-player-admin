@@ -18,7 +18,9 @@
             class="picture-uploader"
             :action="getServerUrl() + 'sys/feedback/uploadImage'"
             :show-file-list="false"
+            :on-progress="handlePicProgress"
             :on-success="handlePicSuccess"
+            :on-error="handlePicError"
             :before-upload="beforePictureUpload">
           <img v-if="picUrl" :src="picUrl" class="picture" alt="反馈图片"/>
           <el-icon v-else class="picture-uploader-icon">
@@ -27,6 +29,9 @@
         </el-upload>
         <el-button @click="handleConfirmUploadPicture">确认更换</el-button>
       </el-form-item>
+      <div v-if="uploadPicProgress > 0" class="progress-container">
+        <el-progress :percentage="uploadPicProgress" :status="uploadPicStatus"/>
+      </div>
       <el-form-item label="提交时间" prop="submissionTime">
         <el-date-picker
             v-model="form.submissionTime"
@@ -86,10 +91,26 @@ const headers = ref({
 
 const picUrl = ref("");
 const currentUser = ref(store.getters.GET_USERINFO);
+const uploadPicProgress = ref(0);
+const uploadPicStatus = ref("");
+
+const handlePicProgress = (event, file, fileList) => {
+  uploadPicProgress.value = event.percent;
+  uploadPicStatus.value = "";
+};
 
 const handlePicSuccess = (res) => {
+  uploadPicStatus.value = "success";
   picUrl.value = getServerUrl() + res.data.src;
   form.value.picture = res.data.title;
+  setTimeout(() => {
+    uploadPicProgress.value = 0;
+  }, 2000);
+};
+
+const handlePicError = (error, file, fileList) => {
+  uploadPicStatus.value = "exception";
+  ElMessage.error("反馈图片上传失败，请重试！");
 };
 
 const beforePictureUpload = (file) => {
@@ -153,7 +174,7 @@ const handleDeleteUploadFileCache = async () => {
   } else {
     ElMessage.error(data.msg);
   }
-}
+};
 
 const emits = defineEmits(['update:modelValue', 'initFeedbackList']);
 
@@ -226,5 +247,10 @@ const handleConfirm = () => {
   width: 120px;
   height: 120px;
   display: block;
+}
+
+.progress-container {
+  padding-left: 20px;
+  padding-right: 20px;
 }
 </style>

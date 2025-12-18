@@ -202,7 +202,7 @@ const handleThumbnailPicSuccess = (res) => {
 
 const handleThumbnailPicError = (error, file, fileList) => {
   uploadThumbnailPicStatus.value = "exception";
-  ElMessage.error("音乐缩略图图片上传失败，请重试！");
+  ElMessage.error("悦单缩略图图片上传失败，请重试！");
 };
 
 const beforePictureUpload = (file) => {
@@ -301,7 +301,7 @@ const handleDeleteUploadFileCache = async () => {
   } else {
     ElMessage.error(data.msg);
   }
-}
+};
 
 const emits = defineEmits(['update:modelValue', 'initList']);
 

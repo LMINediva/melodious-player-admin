@@ -205,7 +205,7 @@ const handlePosterPicSuccess = (res) => {
 
 const handlePosterPicError = (error, file, fileList) => {
   uploadPosterPicStatus.value = "exception";
-  ElMessage.error("音乐海报图片上传失败，请重试！");
+  ElMessage.error("MV海报图片上传失败，请重试！");
 };
 
 const handleThumbnailPicProgress = (event, file, fileList) => {
@@ -224,7 +224,7 @@ const handleThumbnailPicSuccess = (res) => {
 
 const handleThumbnailPicError = (error, file, fileList) => {
   uploadThumbnailPicStatus.value = "exception";
-  ElMessage.error("音乐缩略图图片上传失败，请重试！");
+  ElMessage.error("MV缩略图图片上传失败，请重试！");
 };
 
 const handleVideoProgress = (event, file, fileList) => {
@@ -391,7 +391,7 @@ const handleDeleteUploadFileCache = async () => {
   } else {
     ElMessage.error(data.msg);
   }
-}
+};
 
 const emits = defineEmits(['update:modelValue', 'initMVList']);
 

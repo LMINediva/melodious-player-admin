@@ -18,7 +18,9 @@
             class="picture-uploader"
             :action="getServerUrl() + 'sys/android/uploadImage'"
             :show-file-list="false"
+            :on-progress="handleIconPicProgress"
             :on-success="handleIconPicSuccess"
+            :on-error="handleIconPicError"
             :before-upload="beforePictureUpload">
           <img v-if="iconPicUrl" :src="iconPicUrl" class="picture" alt="应用图标"/>
           <img v-else :src="getServerUrl() + 'image/androidApplicationPicture/default.png'"
@@ -26,6 +28,9 @@
         </el-upload>
         <el-button @click="handleConfirmUploadIconPicture">确认更换</el-button>
       </el-form-item>
+      <div v-if="uploadIconPicProgress > 0" class="progress-container">
+        <el-progress :percentage="uploadIconPicProgress" :status="uploadIconPicStatus"/>
+      </div>
       <el-form-item label="版本代码" prop="code">
         <el-input v-model="form.code"/>
       </el-form-item>
@@ -41,7 +46,9 @@
             class="picture-uploader"
             :action="getServerUrl() + 'sys/android/uploadAPK'"
             :show-file-list="false"
+            :on-progress="handleAPKProgress"
             :on-success="handleAPKSuccess"
+            :on-error="handleAPKError"
             :before-upload="beforeAPKUpload">
           <el-text class="mx-1" type="primary" v-if="url">{{ apkName }}</el-text>
           <el-icon v-else class="picture-uploader-icon">
@@ -50,6 +57,9 @@
         </el-upload>
         <el-button @click="handleConfirmUploadAPK">确认更换</el-button>
       </el-form-item>
+      <div v-if="uploadAPKProgress > 0" class="progress-container">
+        <el-progress :percentage="uploadAPKProgress" :status="uploadAPKStatus"/>
+      </div>
       <el-form-item label="上传时间" prop="uploadTime">
         <el-date-picker
             v-model="form.uploadTime"
@@ -128,16 +138,48 @@ const headers = ref({
 const iconPicUrl = ref("");
 const url = ref("");
 const apkName = ref("");
+const uploadIconPicProgress = ref(0);
+const uploadIconPicStatus = ref("");
+const uploadAPKProgress = ref(0);
+const uploadAPKStatus = ref("");
+
+const handleIconPicProgress = (event, file, fileList) => {
+  uploadIconPicProgress.value = event.percent;
+  uploadIconPicStatus.value = "";
+};
 
 const handleIconPicSuccess = (res) => {
+  uploadIconPicStatus.value = "success";
   iconPicUrl.value = getServerUrl() + res.data.src;
   form.value.icon = res.data.title;
+  setTimeout(() => {
+    uploadIconPicProgress.value = 0;
+  }, 2000);
+};
+
+const handleIconPicError = (error, file, fileList) => {
+  uploadIconPicStatus.value = "exception";
+  ElMessage.error("应用图标上传失败，请重试！");
+};
+
+const handleAPKProgress = (event, file, fileList) => {
+  uploadAPKProgress.value = event.percent;
+  uploadAPKStatus.value = "";
 };
 
 const handleAPKSuccess = (res) => {
+  uploadAPKStatus.value = "success";
   url.value = getServerUrl() + res.data.src;
   apkName.value = res.data.title;
   form.value.url = res.data.title;
+  setTimeout(() => {
+    uploadAPKProgress.value = 0;
+  }, 2000);
+};
+
+const handleAPKError = (error, file, fileList) => {
+  uploadAPKStatus.value = "exception";
+  ElMessage.error("APK文件上传失败，请重试！");
 };
 
 const beforePictureUpload = (file) => {
@@ -232,7 +274,7 @@ const handleDeleteUploadFileCache = async () => {
   } else {
     ElMessage.error(data.msg);
   }
-}
+};
 
 const emits = defineEmits(['update:modelValue', 'initAndroidApplicationList']);
 
@@ -314,5 +356,10 @@ const handleConfirm = () => {
   width: 120px;
   height: 120px;
   display: block;
+}
+
+.progress-container {
+  padding-left: 20px;
+  padding-right: 20px;
 }
 </style>
