@@ -24,7 +24,7 @@
       <el-table-column prop="sysUser.username" label="创建用户" width="100" align="center"/>
       <el-table-column prop="videoCount" label="视频数量" width="100" align="center">
         <template v-slot="scope">
-          <el-text v-if="scope.row.videoCount !== 0" class="mx-1" type="primary"
+          <el-text v-if="scope.row.videoCount !== 0" class="mx-1 pointer-cursor" type="primary"
                    @click="handleVideoDialogValue(scope.row.id, scope.row.title, scope.row.mvList)">
             {{ scope.row.videoCount }}
           </el-text>
@@ -36,11 +36,11 @@
         </template>
       </el-table-column>
       <el-table-column prop="category" label="类型" width="100" align="center"/>
+      <el-table-column prop="createTime" label="创建时间" width="100" align="center" :formatter="formatDateTime"/>
+      <el-table-column prop="updateTime" label="更新时间" width="100" align="center" :formatter="formatDateTime"/>
       <el-table-column prop="status" label="状态" width="120" align="center" :formatter="stateFormat"/>
       <el-table-column prop="totalViews" label="总浏览量" width="100" align="center"/>
       <el-table-column prop="totalFavorites" label="点赞量" width="100" align="center"/>
-      <el-table-column prop="createTime" label="创建时间" width="100" align="center" :formatter="formatDateTime"/>
-      <el-table-column prop="updateTime" label="更新时间" width="100" align="center" :formatter="formatDateTime"/>
       <el-table-column prop="integral" label="积分" width="100" align="center"/>
       <el-table-column prop="weekIntegral" label="周积分" width="100" align="center"/>
       <el-table-column prop="totalUser" label="总积分" width="100" align="center"/>
@@ -239,5 +239,9 @@ const formatDateTime = (row, column, cellValue, index) => {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.pointer-cursor {
+  cursor: pointer;
 }
 </style>

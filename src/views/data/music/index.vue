@@ -34,10 +34,9 @@
         </template>
       </el-table-column>
       <el-table-column prop="sysUser.username" label="创建用户" width="100" align="center"/>
-      <el-table-column prop="type" label="音乐类型" width="80" align="center"/>
       <el-table-column label="歌词" width="100" align="center">
         <template v-slot="scope">
-          <el-text v-if="scope.row.lyric" class="mx-1" type="primary"
+          <el-text v-if="scope.row.lyric" class="mx-1 pointer-cursor" type="primary"
                    @click="handleLyricDialogValue(scope.row.id, scope.row.title, scope.row.lyric)">
             {{ scope.row.lyric }}
           </el-text>
@@ -45,7 +44,7 @@
       </el-table-column>
       <el-table-column prop="url" label="音乐" width="100" align="center">
         <template v-slot="scope">
-          <el-text v-if="scope.row.url" class="mx-1" type="primary"
+          <el-text v-if="scope.row.url" class="mx-1 pointer-cursor" type="primary"
                    @click="handleAudioDialogValue(scope.row.id, scope.row.title, scope.row.url)">
             {{ scope.row.url }}
           </el-text>
@@ -53,7 +52,7 @@
       </el-table-column>
       <el-table-column prop="hdUrl" label="高品质音乐" width="100" align="center">
         <template v-slot="scope">
-          <el-text v-if="scope.row.hdUrl" class="mx-1" type="primary"
+          <el-text v-if="scope.row.hdUrl" class="mx-1 pointer-cursor" type="primary"
                    @click="handleAudioDialogValue(scope.row.id, scope.row.title, scope.row.hdUrl)">
             {{ scope.row.hdUrl }}
           </el-text>
@@ -61,12 +60,13 @@
       </el-table-column>
       <el-table-column prop="uhdUrl" label="超高品质音乐" width="100" align="center">
         <template v-slot="scope">
-          <el-text v-if="scope.row.uhdUrl" class="mx-1" type="primary"
+          <el-text v-if="scope.row.uhdUrl" class="mx-1 pointer-cursor" type="primary"
                    @click="handleAudioDialogValue(scope.row.id, scope.row.title, scope.row.uhdUrl)">
             {{ scope.row.uhdUrl }}
           </el-text>
         </template>
       </el-table-column>
+      <el-table-column prop="type" label="音乐类型" width="80" align="center"/>
       <el-table-column prop="musicSize" label="音乐大小（MB）" width="120" align="center"/>
       <el-table-column prop="hdMusicSize" label="高品质音乐大小（MB）" width="120" align="center"/>
       <el-table-column prop="uhdMusicSize" label="超高品质音乐大小（MB）" width="120" align="center"/>
@@ -272,5 +272,9 @@ const stateFormat = (row, column) => {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.pointer-cursor {
+  cursor: pointer;
 }
 </style>

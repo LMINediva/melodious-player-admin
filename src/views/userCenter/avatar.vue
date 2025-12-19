@@ -13,7 +13,7 @@
         :on-success="handleAvatarSuccess"
         :on-error="handleAvatarError"
         :before-upload="beforeAvatarUpload">
-      <img v-if="imageUrl" :src="imageUrl" class="avatar"/>
+      <img v-if="imageUrl" :src="imageUrl" class="avatar" alt="头像"/>
       <el-icon v-else class="avatar-uploader-icon">
         <Plus/>
       </el-icon>
@@ -26,10 +26,11 @@
 </template>
 
 <script setup>
-import {defineProps, ref} from 'vue';
+import {defineProps, onBeforeUnmount, ref} from 'vue';
 import requestUtil, {getServerUrl} from '@/util/request';
 import {ElMessage} from 'element-plus';
 import {Plus} from '@element-plus/icons-vue';
+import {useRouter} from "vue-router";
 import store from '@/store';
 
 const props = defineProps(
@@ -56,7 +57,9 @@ const formRef = ref(null);
 const imageUrl = ref("");
 const uploadAvatarProgress = ref(0);
 const uploadAvatarStatus = ref("");
+const isUploadAvatarSuccess = ref(false);
 const isConfirmChangeAvatar = ref(false);
+const router = useRouter();
 
 form.value = props.user;
 imageUrl.value = getServerUrl() + 'image/userAvatar/' + form.value.avatar;
@@ -70,6 +73,7 @@ const handleAvatarSuccess = (res) => {
   uploadAvatarStatus.value = "success";
   imageUrl.value = getServerUrl() + res.data.src;
   form.value.avatar = res.data.title;
+  isUploadAvatarSuccess.value = true;
   setTimeout(() => {
     uploadAvatarProgress.value = 0;
   }, 2000);
@@ -96,6 +100,7 @@ const handleConfirm = async () => {
   let result = await requestUtil.post("sys/user/updateAvatar", form.value);
   let data = result.data;
   if (data.code === 200) {
+    isConfirmChangeAvatar.value = true;
     ElMessage.success("执行成功！");
     store.commit("SET_USERINFO", form.value);
   } else {
@@ -107,12 +112,19 @@ const handleDeleteUploadFileCache = async () => {
   let result = await requestUtil.post("sys/user/deleteUploadFileCache", form.value);
   let data = result.data;
   if (data.code === 200) {
-    form.value.avatar = "";
+    router.go(0);
     ElMessage.success("文件上传缓存删除成功！");
   } else {
     ElMessage.error(data.msg);
   }
 };
+
+onBeforeUnmount(() => {
+  if (isUploadAvatarSuccess.value && !isConfirmChangeAvatar.value) {
+    handleDeleteUploadFileCache();
+  }
+});
+
 </script>
 
 <style>

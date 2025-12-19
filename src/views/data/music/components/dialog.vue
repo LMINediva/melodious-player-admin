@@ -3,7 +3,7 @@
       v-bind="dialogVisible"
       :title="dialogTitle"
       width="30%"
-      @close="handleClose">
+      :before-close="handleClose">
     <el-form
         ref="formRef"
         :model="form"
@@ -183,6 +183,14 @@ const uploadLyricProgress = ref(0);
 const uploadLyricStatus = ref("");
 const uploadAudioProgress = ref(0);
 const uploadAudioStatus = ref("");
+const isUploadPosterPicSuccess = ref(false);
+const isConfirmChangePosterPic = ref(false);
+const isUploadThumbnailPicSuccess = ref(false);
+const isConfirmChangeThumbnailPic = ref(false);
+const isUploadLyricSuccess = ref(false);
+const isConfirmChangeLyric = ref(false);
+const isUploadAudioSuccess = ref(false);
+const isConfirmChangeAudio = ref(false);
 
 const handlePosterPicProgress = (event, file, fileList) => {
   uploadPosterPicProgress.value = event.percent;
@@ -193,6 +201,7 @@ const handlePosterPicSuccess = (res) => {
   uploadPosterPicStatus.value = "success";
   posterPicUrl.value = getServerUrl() + res.data.src;
   form.value.posterPic = res.data.title;
+  isUploadPosterPicSuccess.value = true;
   setTimeout(() => {
     uploadPosterPicProgress.value = 0;
   }, 2000);
@@ -212,6 +221,7 @@ const handleThumbnailPicSuccess = (res) => {
   uploadThumbnailPicStatus.value = "success";
   thumbnailPicUrl.value = getServerUrl() + res.data.src;
   form.value.thumbnailPic = res.data.title;
+  isUploadThumbnailPicSuccess.value = true;
   setTimeout(() => {
     uploadThumbnailPicProgress.value = 0;
   }, 2000);
@@ -231,6 +241,7 @@ const handleLyricSuccess = (res) => {
   uploadLyricStatus.value = "success";
   lyricUrl.value = getServerUrl() + res.data.src;
   form.value.lyric = res.data.title;
+  isUploadLyricSuccess.value = true;
   setTimeout(() => {
     uploadLyricProgress.value = 0;
   }, 2000);
@@ -251,6 +262,7 @@ const handleAudioSuccess = (res) => {
   audioUrl.value = getServerUrl() + res.data.src;
   audioName.value = res.data.title;
   form.value.url = res.data.title;
+  isUploadAudioSuccess.value = true;
   setTimeout(() => {
     uploadAudioProgress.value = 0;
   }, 2000);
@@ -382,10 +394,6 @@ watch(
     }
 );
 
-const isNotEmpty = (value) => {
-  return value !== null && value !== undefined && value !== '';
-}
-
 const handleDeleteUploadFileCache = async () => {
   let result = await requestUtil.post("data/music/deleteUploadFileCache", form.value);
   let data = result.data;
@@ -394,6 +402,14 @@ const handleDeleteUploadFileCache = async () => {
     form.value.thumbnailPic = "";
     form.value.url = "";
     form.value.lyric = "";
+    isUploadPosterPicSuccess.value = false;
+    isConfirmChangePosterPic.value = false;
+    isUploadThumbnailPicSuccess.value = false;
+    isConfirmChangeThumbnailPic.value = false;
+    isUploadLyricSuccess.value = false;
+    isConfirmChangeLyric.value = false;
+    isUploadAudioSuccess.value = false;
+    isConfirmChangeAudio.value = false;
     ElMessage.success("文件上传缓存删除成功！");
   } else {
     ElMessage.error(data.msg);
@@ -404,11 +420,11 @@ const emits = defineEmits(['update:modelValue', 'initMusicList']);
 
 const handleClose = () => {
   emits('update:modelValue', false);
-  if (form.value.id === -1) {
-    if (isNotEmpty(form.value.posterPic) || isNotEmpty(form.value.thumbnailPic)
-        || isNotEmpty(form.value.url) || isNotEmpty(form.value.lyric)) {
-      handleDeleteUploadFileCache();
-    }
+  if ((isUploadPosterPicSuccess.value && !isConfirmChangePosterPic.value) ||
+      (isUploadThumbnailPicSuccess.value && !isConfirmChangeThumbnailPic.value) ||
+      (isUploadLyricSuccess.value && !isConfirmChangeLyric.value) ||
+      (isUploadAudioSuccess.value && !isConfirmChangeAudio.value)) {
+    handleDeleteUploadFileCache();
   }
   uploadAudioProgress.value = 0;
   uploadAudioStatus.value = "";
@@ -418,6 +434,7 @@ const handleConfirmUploadPosterPicture = async () => {
   let result = await requestUtil.post("data/music/updatePosterPicture", form.value);
   let data = result.data;
   if (data.code === 200) {
+    isConfirmChangePosterPic.value = true;
     ElMessage.success("执行成功！");
   } else {
     ElMessage.error(data.msg);
@@ -428,6 +445,7 @@ const handleConfirmUploadThumbnailPicture = async () => {
   let result = await requestUtil.post("data/music/updateThumbnailPicture", form.value);
   let data = result.data;
   if (data.code === 200) {
+    isConfirmChangeThumbnailPic.value = true;
     ElMessage.success("执行成功！");
   } else {
     ElMessage.error(data.msg);
@@ -438,6 +456,7 @@ const handleConfirmUploadLyric = async () => {
   let result = await requestUtil.post("data/music/updateLyric", form.value);
   let data = result.data;
   if (data.code === 200) {
+    isConfirmChangeLyric.value = true;
     ElMessage.success("执行成功！");
   } else {
     ElMessage.error(data.msg);
@@ -450,6 +469,7 @@ const handleConfirmUploadAudio = async () => {
   let result = await requestUtil.post("data/music/updateAudio", form.value);
   let data = result.data;
   if (data.code === 200) {
+    isConfirmChangeAudio.value = true;
     ElMessage.success("执行成功！");
   } else {
     ElMessage.error(data.msg);
@@ -470,6 +490,10 @@ const handleConfirm = () => {
       if (data.code === 200) {
         uploadAudioProgress.value = 0;
         uploadAudioStatus.value = "";
+        isConfirmChangePosterPic.value = true;
+        isConfirmChangeThumbnailPic.value = true;
+        isConfirmChangeLyric.value = true;
+        isConfirmChangeAudio.value = true;
         ElMessage.success("执行成功！");
         formRef.value.resetFields();
         emits("initMusicList");

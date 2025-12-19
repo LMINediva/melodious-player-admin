@@ -173,5 +173,8 @@ const handleClose = () => {
 </script>
 
 <style scoped>
-
+.image {
+  width: 150px;
+  height: 150px;
+}
 </style>

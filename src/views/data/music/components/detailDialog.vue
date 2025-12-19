@@ -21,12 +21,14 @@
         <el-text class="mx-1">{{ form.description }}</el-text>
       </el-form-item>
       <el-form-item label="海报图片：">
-        <img :src="getServerUrl() + 'image/musicPicture/' + form.posterPic" width="150" height="150"
-             alt="海报图片"/>
+        <el-image :src="getServerUrl() + 'image/musicPicture/' + form.posterPic"
+                  :preview-src-list="[getServerUrl() + 'image/musicPicture/' + form.posterPic]"
+                  class="image"/>
       </el-form-item>
       <el-form-item label="缩略图：">
-        <img :src="getServerUrl() + 'image/musicPicture/' + form.thumbnailPic" width="150" height="150"
-             alt="缩略图"/>
+        <el-image :src="getServerUrl() + 'image/musicPicture/' + form.thumbnailPic"
+                  :preview-src-list="[getServerUrl() + 'image/musicPicture/' + form.thumbnailPic]"
+                  class="image"/>
       </el-form-item>
       <el-form-item label="创建用户：">
         <el-text class="mx-1">{{ form.sysUser.username }}</el-text>
@@ -137,5 +139,8 @@ const handleClose = () => {
 </script>
 
 <style scoped>
-
+.image {
+  width: 150px;
+  height: 150px;
+}
 </style>
