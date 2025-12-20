@@ -3,7 +3,7 @@
       v-bind="dialogVisible"
       :title="dialogTitle"
       width="30%"
-      @close="handleClose">
+      :before-close="handleClose">
     <el-form
         ref="formRef"
         :model="form"

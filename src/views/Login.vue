@@ -28,7 +28,7 @@
         </el-input>
       </el-form-item>
       <el-form-item prop="code">
-        <el-row :gutter="20">
+        <el-row :gutter="24">
           <el-col :span="16">
             <el-input
                 v-model="loginForm.code"
@@ -61,7 +61,7 @@
     </el-form>
     <!--  底部  -->
     <div class="el-login-footer">
-      <span>Copyright © 2013-2025 <a href="http://www.java1234.vip" target="_blank">java1234.vip</a> 版权所有.</span>
+      <span>Copyright © 2013-2026 <a href="http://www.java1234.vip" target="_blank">java1234.vip</a> 版权所有.</span>
     </div>
   </div>
 </template>
@@ -71,7 +71,7 @@ import {onMounted, onUnmounted, ref} from 'vue';
 import requestUtil, {getServerUrl} from '@/util/request';
 import store from '@/store';
 import qs from 'qs';
-import {ElMessage, ElLoading} from 'element-plus';
+import {ElMessage} from 'element-plus';
 import router from '@/router';
 import Cookies from 'js-cookie';
 import {encrypt, decrypt} from '@/util/jsencrypt';
@@ -250,5 +250,14 @@ a {
 .login-code-img {
   height: 40px;
   padding-left: 12px;
+}
+
+.custom-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  background-color: #F5F7FA;
 }
 </style>

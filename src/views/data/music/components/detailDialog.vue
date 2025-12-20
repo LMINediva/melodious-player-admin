@@ -23,12 +23,12 @@
       <el-form-item label="海报图片：">
         <el-image :src="getServerUrl() + 'image/musicPicture/' + form.posterPic"
                   :preview-src-list="[getServerUrl() + 'image/musicPicture/' + form.posterPic]"
-                  class="image"/>
+                  class="image" alt="海报图片"/>
       </el-form-item>
       <el-form-item label="缩略图：">
         <el-image :src="getServerUrl() + 'image/musicPicture/' + form.thumbnailPic"
                   :preview-src-list="[getServerUrl() + 'image/musicPicture/' + form.thumbnailPic]"
-                  class="image"/>
+                  class="image" alt="缩略图"/>
       </el-form-item>
       <el-form-item label="创建用户：">
         <el-text class="mx-1">{{ form.sysUser.username }}</el-text>
