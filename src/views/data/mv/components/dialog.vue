@@ -188,6 +188,12 @@ const uploadThumbnailPicProgress = ref(0);
 const uploadThumbnailPicStatus = ref("");
 const uploadVideoProgress = ref(0);
 const uploadVideoStatus = ref("");
+const isUploadPosterPicSuccess = ref(false);
+const isConfirmChangePosterPic = ref(false);
+const isUploadThumbnailPicSuccess = ref(false);
+const isConfirmChangeThumbnailPic = ref(false);
+const isUploadVideoSuccess = ref(false);
+const isConfirmChangeVideo = ref(false);
 
 const handlePosterPicProgress = (event, file, fileList) => {
   uploadPosterPicProgress.value = event.percent;
@@ -198,6 +204,7 @@ const handlePosterPicSuccess = (res) => {
   uploadPosterPicStatus.value = "success";
   posterPicUrl.value = getServerUrl() + res.data.src;
   form.value.posterPic = res.data.title;
+  isUploadPosterPicSuccess.value = true;
   setTimeout(() => {
     uploadPosterPicProgress.value = 0;
   }, 2000);
@@ -217,6 +224,7 @@ const handleThumbnailPicSuccess = (res) => {
   uploadThumbnailPicStatus.value = "success";
   thumbnailPicUrl.value = getServerUrl() + res.data.src;
   form.value.thumbnailPic = res.data.title;
+  isUploadThumbnailPicSuccess.value = true;
   setTimeout(() => {
     uploadThumbnailPicProgress.value = 0;
   }, 2000);
@@ -237,6 +245,7 @@ const handleVideoSuccess = (res) => {
   url.value = getServerUrl() + res.data.src;
   videoName.value = res.data.title;
   form.value.url = res.data.title;
+  isUploadVideoSuccess.value = true;
   setTimeout(() => {
     uploadVideoProgress.value = 0;
   }, 2000);
@@ -376,10 +385,6 @@ watch(
     }
 );
 
-const isNotEmpty = (value) => {
-  return value !== null && value !== undefined && value !== '';
-}
-
 const handleDeleteUploadFileCache = async () => {
   let result = await requestUtil.post("data/mv/deleteUploadFileCache", form.value);
   let data = result.data;
@@ -387,6 +392,12 @@ const handleDeleteUploadFileCache = async () => {
     form.value.posterPic = "";
     form.value.thumbnailPic = "";
     form.value.url = "";
+    isUploadPosterPicSuccess.value = false;
+    isConfirmChangePosterPic.value = false;
+    isUploadThumbnailPicSuccess.value = false;
+    isConfirmChangeThumbnailPic.value = false;
+    isUploadVideoSuccess.value = false;
+    isConfirmChangeVideo.value = false;
     ElMessage.success("文件上传缓存删除成功！");
   } else {
     ElMessage.error(data.msg);
@@ -397,18 +408,24 @@ const emits = defineEmits(['update:modelValue', 'initMVList']);
 
 const handleClose = () => {
   emits('update:modelValue', false);
-  if (form.value.id === -1) {
-    if (isNotEmpty(form.value.posterPic) || isNotEmpty(form.value.thumbnailPic)
-        || isNotEmpty(form.value.url)) {
-      handleDeleteUploadFileCache();
-    }
+  if ((isUploadPosterPicSuccess.value && !isConfirmChangePosterPic.value) ||
+      (isUploadThumbnailPicSuccess.value && !isConfirmChangeThumbnailPic.value) ||
+      (isUploadVideoSuccess.value && !isConfirmChangeVideo.value)) {
+    handleDeleteUploadFileCache();
   }
+  uploadPosterPicProgress.value = 0;
+  uploadPosterPicStatus.value = "";
+  uploadThumbnailPicProgress.value = 0;
+  uploadThumbnailPicStatus.value = "";
+  uploadVideoProgress.value = 0;
+  uploadVideoStatus.value = "";
 };
 
 const handleConfirmUploadPosterPicture = async () => {
   let result = await requestUtil.post("data/mv/updatePosterPicture", form.value);
   let data = result.data;
   if (data.code === 200) {
+    isConfirmChangePosterPic.value = true;
     ElMessage.success("执行成功！");
   } else {
     ElMessage.error(data.msg);
@@ -419,6 +436,7 @@ const handleConfirmUploadThumbnailPicture = async () => {
   let result = await requestUtil.post("data/mv/updateThumbnailPicture", form.value);
   let data = result.data;
   if (data.code === 200) {
+    isConfirmChangeThumbnailPic.value = true;
     ElMessage.success("执行成功！");
   } else {
     ElMessage.error(data.msg);
@@ -429,6 +447,7 @@ const handleConfirmUploadVideo = async () => {
   let result = await requestUtil.post("data/mv/updateVideo", form.value);
   let data = result.data;
   if (data.code === 200) {
+    isConfirmChangeVideo.value = true;
     ElMessage.success("执行成功！");
   } else {
     ElMessage.error(data.msg);
@@ -447,6 +466,9 @@ const handleConfirm = () => {
       let result = await requestUtil.post("data/mv/save", form.value);
       let data = result.data;
       if (data.code === 200) {
+        isConfirmChangePosterPic.value = true;
+        isConfirmChangeThumbnailPic.value = true;
+        isConfirmChangeVideo.value = true;
         ElMessage.success("执行成功！");
         formRef.value.resetFields();
         emits("initMVList");

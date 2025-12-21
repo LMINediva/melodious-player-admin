@@ -426,6 +426,12 @@ const handleClose = () => {
       (isUploadAudioSuccess.value && !isConfirmChangeAudio.value)) {
     handleDeleteUploadFileCache();
   }
+  uploadPosterPicProgress.value = 0;
+  uploadPosterPicStatus.value = "";
+  uploadThumbnailPicProgress.value = 0;
+  uploadThumbnailPicStatus.value = "";
+  uploadLyricProgress.value = 0;
+  uploadLyricStatus.value = "";
   uploadAudioProgress.value = 0;
   uploadAudioStatus.value = "";
 };
@@ -488,8 +494,6 @@ const handleConfirm = () => {
       let result = await requestUtil.post("data/music/save", form.value);
       let data = result.data;
       if (data.code === 200) {
-        uploadAudioProgress.value = 0;
-        uploadAudioStatus.value = "";
         isConfirmChangePosterPic.value = true;
         isConfirmChangeThumbnailPic.value = true;
         isConfirmChangeLyric.value = true;

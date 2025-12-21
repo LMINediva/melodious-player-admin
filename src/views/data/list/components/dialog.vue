@@ -3,7 +3,7 @@
       v-bind="dialogVisible"
       :title="dialogTitle"
       width="50%"
-      @close="handleClose">
+      :before-close="handleClose">
     <el-form
         ref="formRef"
         :model="form"
@@ -185,6 +185,8 @@ const multipleTableRef = ref(null);
 const currentUser = ref(store.getters.GET_USERINFO);
 const uploadThumbnailPicProgress = ref(0);
 const uploadThumbnailPicStatus = ref("");
+const isUploadThumbnailPicSuccess = ref(false);
+const isConfirmChangeThumbnailPic = ref(false);
 
 const handleThumbnailPicProgress = (event, file, fileList) => {
   uploadThumbnailPicProgress.value = event.percent;
@@ -195,6 +197,7 @@ const handleThumbnailPicSuccess = (res) => {
   uploadThumbnailPicStatus.value = "success";
   thumbnailPicUrl.value = getServerUrl() + res.data.src;
   form.value.thumbnailPic = res.data.title;
+  isUploadThumbnailPicSuccess.value = true;
   setTimeout(() => {
     uploadThumbnailPicProgress.value = 0;
   }, 2000);
@@ -288,15 +291,13 @@ watch(
     }
 );
 
-const isNotEmpty = (value) => {
-  return value !== null && value !== undefined && value !== '';
-}
-
 const handleDeleteUploadFileCache = async () => {
   let result = await requestUtil.post("data/list/deleteUploadFileCache", form.value);
   let data = result.data;
   if (data.code === 200) {
     form.value.thumbnailPic = "";
+    isUploadThumbnailPicSuccess.value = false;
+    isConfirmChangeThumbnailPic.value = false;
     ElMessage.success("文件上传缓存删除成功！");
   } else {
     ElMessage.error(data.msg);
@@ -308,17 +309,18 @@ const emits = defineEmits(['update:modelValue', 'initList']);
 const handleClose = () => {
   multipleSelection.value = [];
   emits('update:modelValue', false);
-  if (form.value.id === -1) {
-    if (isNotEmpty(form.value.thumbnailPic)) {
-      handleDeleteUploadFileCache();
-    }
+  if (isUploadThumbnailPicSuccess.value && !isConfirmChangeThumbnailPic.value) {
+    handleDeleteUploadFileCache();
   }
+  uploadThumbnailPicProgress.value = 0;
+  uploadThumbnailPicStatus.value = "";
 };
 
 const handleConfirmUploadThumbnailPicture = async () => {
   let result = await requestUtil.post("data/list/updateThumbnailPicture", form.value);
   let data = result.data;
   if (data.code === 200) {
+    isConfirmChangeThumbnailPic.value = true;
     ElMessage.success("执行成功！");
   } else {
     ElMessage.error(data.msg);
@@ -417,6 +419,7 @@ const handleConfirm = () => {
       let result = await requestUtil.post("data/list/save", form.value);
       let data = result.data;
       if (data.code === 200) {
+        isConfirmChangeThumbnailPic.value = true;
         ElMessage.success("执行成功！");
         formRef.value.resetFields();
         emits("initList");

@@ -12,8 +12,9 @@
         <el-text class="mx-1">{{ form.title }}</el-text>
       </el-form-item>
       <el-form-item label="缩略图：">
-        <img :src="getServerUrl() + 'image/listPicture/' + form.thumbnailPic" width="150" height="150"
-             alt="缩略图"/>
+        <el-image :src="getServerUrl() + 'image/listPicture/' + form.thumbnailPic"
+                  :preview-src-list="[getServerUrl() + 'image/listPicture/' + form.thumbnailPic]"
+                  class="image" alt="缩略图"/>
       </el-form-item>
       <el-form-item label="创建用户：">
         <el-text class="mx-1">{{ form.sysUser.username }}</el-text>
@@ -166,5 +167,8 @@ const handleClose = () => {
 </script>
 
 <style scoped>
-
+.image {
+  width: 150px;
+  height: 150px;
+}
 </style>
