@@ -64,7 +64,6 @@ watch(
     () => props.dialogVisible,
     () => {
       let id = props.id;
-      console.log("id=" + id);
       initFormData(id);
     }
 );

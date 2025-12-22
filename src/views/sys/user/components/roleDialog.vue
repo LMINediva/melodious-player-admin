@@ -66,7 +66,6 @@ watch(
     () => props.roleDialogVisible,
     () => {
       let id = props.id;
-      console.log("id=" + id);
       if (id !== -1) {
         form.value.checkedRoles = [];
         props.sysRoleList.forEach(item => {

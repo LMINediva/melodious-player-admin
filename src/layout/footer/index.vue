@@ -1,6 +1,6 @@
 <template>
   <div class="footer">
-    Copyright © 2012-2025 Java知识分享网 版权所有&nbsp;&nbsp;<a href="http://www.java1234.vip" target="_blank">www.java1234.vip</a>
+    Copyright © 2013-2026 Java知识分享网 版权所有&nbsp;&nbsp;<a href="http://www.java1234.vip" target="_blank">www.java1234.vip</a>
   </div>
 </template>
 

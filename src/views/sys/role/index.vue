@@ -82,7 +82,6 @@ const handleSelectionChange = (selection) => {
 };
 
 const handleMenuDialogValue = (roleId) => {
-  console.log("roleId=" + roleId);
   id.value = roleId;
   menuDialogVisible.value = true;
 };

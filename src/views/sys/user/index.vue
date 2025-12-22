@@ -108,7 +108,6 @@ const handleSelectionChange = (selection) => {
 };
 
 const handleRoleDialogValue = (userId, roleList) => {
-  console.log("userId=" + userId);
   id.value = userId;
   sysRoleList.value = roleList;
   roleDialogVisible.value = true;

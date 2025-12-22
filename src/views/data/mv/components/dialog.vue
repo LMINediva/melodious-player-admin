@@ -344,7 +344,6 @@ watch(
     () => {
       initAreaData();
       let id = props.id;
-      console.log("id=" + id);
       if (id !== -1) {
         initFormData(id);
       } else {

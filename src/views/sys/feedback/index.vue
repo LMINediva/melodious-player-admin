@@ -14,7 +14,6 @@
     </el-row>
     <el-table :data="tableData" stripe style="width: 100%" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55"/>
-      <el-table-column prop="sysUser.username" label="创建用户" width="100" align="center"/>
       <el-table-column prop="content" label="反馈内容" width="120" align="center">
         <template v-slot="scope">
           <p class="cell-overflow-ellipsis">{{ scope.row.content }}</p>
@@ -26,9 +25,11 @@
                alt="反馈图片"/>
         </template>
       </el-table-column>
-      <el-table-column prop="submissionTime" label="提交时间" width="200" align="center" :formatter="formatDateTime"/>
+      <el-table-column prop="sysUser.username" label="反馈用户" width="100" align="center"/>
+      <el-table-column prop="submissionTime" label="反馈时间" width="200" align="center" :formatter="formatDateTime"/>
       <el-table-column prop="action" label="操作" width="400" fixed="right" align="center">
         <template v-slot="scope">
+          <el-button type="primary" :icon="Tickets" @click="handleDetailDialogValue(scope.row.id)"/>
           <el-button type="primary" :icon="Edit" @click="handleDialogValue(scope.row.id)"/>
           <el-popconfirm title="您确定要删除这条记录吗？" @confirm="handleDelete(scope.row.id)">
             <template #reference>
@@ -50,13 +51,16 @@
   </div>
   <Dialog v-model="dialogVisible" :dialogVisible="dialogVisible" :id="id" :dialogTitle="dialogTitle"
           @initFeedbackList="initFeedbackList"/>
+  <DetailDialog v-model="detailDialogVisible" :dialogVisible="detailDialogVisible"
+                :id="id" :dialogTitle="detailDialogTitle"/>
 </template>
 
 <script setup>
 import {ref} from 'vue';
 import requestUtil, {getServerUrl} from '@/util/request';
-import {Search, Delete, DocumentAdd, Edit} from '@element-plus/icons-vue';
+import {Search, Delete, DocumentAdd, Edit, Tickets} from '@element-plus/icons-vue';
 import Dialog from './components/dialog';
+import DetailDialog from "./components/detailDialog.vue";
 import {ElMessage, ElMessageBox} from 'element-plus';
 import moment from 'moment-timezone';
 
@@ -70,7 +74,9 @@ const queryForm = ref({
 });
 
 const dialogVisible = ref(false);
+const detailDialogVisible = ref(false);
 const dialogTitle = ref("");
+const detailDialogTitle = ref("");
 const id = ref(-1);
 const delBtnStatus = ref(true);
 const multipleSelection = ref([]);
@@ -110,6 +116,17 @@ const handleDialogValue = (feedbackId) => {
     dialogTitle.value = "反馈添加";
   }
   dialogVisible.value = true;
+};
+
+const handleDetailDialogValue = (feedbackId) => {
+  if (feedbackId) {
+    id.value = feedbackId;
+    detailDialogTitle.value = "详情";
+  } else {
+    id.value = -1;
+    detailDialogTitle.value = "没找到详情";
+  }
+  detailDialogVisible.value = true;
 };
 
 const handleDelete = async (id) => {
