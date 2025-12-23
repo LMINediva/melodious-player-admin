@@ -77,10 +77,13 @@
             :on-success="handleVideoSuccess"
             :on-error="handleVideoError"
             :before-upload="beforeVideoUpload">
-          <video ref="videoPlayer" v-if="url" :src="url" @loadedmetadata="getVideoDuration"
-                 width="320" height="240" controls>
-            您的浏览器不支持video元素。
-          </video>
+          <div v-if="url">
+            <video ref="videoPlayer" :src="url" @loadedmetadata="getVideoDuration"
+                   width="320" height="240" controls>
+              您的浏览器不支持video元素。
+            </video>
+            <el-text class="mx-1" type="primary">{{ form.url }}</el-text>
+          </div>
           <el-icon v-else class="picture-uploader-icon">
             <Plus/>
           </el-icon>
@@ -425,6 +428,7 @@ const handleConfirmUploadPosterPicture = async () => {
   let data = result.data;
   if (data.code === 200) {
     isConfirmChangePosterPic.value = true;
+    emits("initMVList");
     ElMessage.success("执行成功！");
   } else {
     ElMessage.error(data.msg);
@@ -436,6 +440,7 @@ const handleConfirmUploadThumbnailPicture = async () => {
   let data = result.data;
   if (data.code === 200) {
     isConfirmChangeThumbnailPic.value = true;
+    emits("initMVList");
     ElMessage.success("执行成功！");
   } else {
     ElMessage.error(data.msg);
@@ -447,6 +452,7 @@ const handleConfirmUploadVideo = async () => {
   let data = result.data;
   if (data.code === 200) {
     isConfirmChangeVideo.value = true;
+    emits("initMVList");
     ElMessage.success("执行成功！");
   } else {
     ElMessage.error(data.msg);

@@ -90,10 +90,13 @@
             :on-success="handleAudioSuccess"
             :on-error="handleAudioError"
             :before-upload="beforeAudioUpload">
-          <audio v-if="form.url" ref="audioPlayer" controls class="picture">
-            <source :src="audioUrl" type="audio/mpeg">
-            您的浏览器不支持audio元素。
-          </audio>
+          <div v-if="form.url">
+            <audio ref="audioPlayer" controls class="picture">
+              <source :src="audioUrl" type="audio/mpeg">
+              您的浏览器不支持audio元素。
+            </audio>
+            <el-text class="mx-1" type="primary">{{ form.url }}</el-text>
+          </div>
           <el-icon v-else class="picture-uploader-icon">
             <Plus/>
           </el-icon>
@@ -440,6 +443,7 @@ const handleConfirmUploadPosterPicture = async () => {
   let data = result.data;
   if (data.code === 200) {
     isConfirmChangePosterPic.value = true;
+    emits("initMusicList");
     ElMessage.success("执行成功！");
   } else {
     ElMessage.error(data.msg);
@@ -451,6 +455,7 @@ const handleConfirmUploadThumbnailPicture = async () => {
   let data = result.data;
   if (data.code === 200) {
     isConfirmChangeThumbnailPic.value = true;
+    emits("initMusicList");
     ElMessage.success("执行成功！");
   } else {
     ElMessage.error(data.msg);
@@ -462,6 +467,7 @@ const handleConfirmUploadLyric = async () => {
   let data = result.data;
   if (data.code === 200) {
     isConfirmChangeLyric.value = true;
+    emits("initMusicList");
     ElMessage.success("执行成功！");
   } else {
     ElMessage.error(data.msg);
@@ -475,6 +481,7 @@ const handleConfirmUploadAudio = async () => {
   let data = result.data;
   if (data.code === 200) {
     isConfirmChangeAudio.value = true;
+    emits("initMusicList");
     ElMessage.success("执行成功！");
   } else {
     ElMessage.error(data.msg);

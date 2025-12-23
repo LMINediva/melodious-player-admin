@@ -40,7 +40,7 @@
       <el-table-column prop="uploadTime" label="上传时间" width="200" align="center" :formatter="formatDateTime"/>
       <el-table-column prop="force" label="强制更新" width="120" align="center" :formatter="forceFormat"/>
       <el-table-column prop="status" label="状态" width="120" align="center" :formatter="stateFormat"/>
-      <el-table-column prop="action" label="操作" width="400" fixed="right" align="center">
+      <el-table-column prop="action" label="操作" width="200" fixed="right" align="center">
         <template v-slot="scope">
           <el-button type="primary" :icon="Edit" @click="handleDialogValue(scope.row.id)"/>
           <el-popconfirm title="您确定要删除这条记录吗？" @confirm="handleDelete(scope.row.id)">

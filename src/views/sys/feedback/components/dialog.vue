@@ -3,7 +3,7 @@
       v-bind="dialogVisible"
       :title="dialogTitle"
       width="30%"
-      @close="handleClose">
+      :before-close="handleClose">
     <el-form
         ref="formRef"
         :model="form"
@@ -93,6 +93,8 @@ const picUrl = ref("");
 const currentUser = ref(store.getters.GET_USERINFO);
 const uploadPicProgress = ref(0);
 const uploadPicStatus = ref("");
+const isUploadPicSuccess = ref(false);
+const isConfirmChangePic = ref(false);
 
 const handlePicProgress = (event, file, fileList) => {
   uploadPicProgress.value = event.percent;
@@ -103,6 +105,7 @@ const handlePicSuccess = (res) => {
   uploadPicStatus.value = "success";
   picUrl.value = getServerUrl() + res.data.src;
   form.value.picture = res.data.title;
+  isUploadPicSuccess.value = true;
   setTimeout(() => {
     uploadPicProgress.value = 0;
   }, 2000);
@@ -160,15 +163,13 @@ watch(
     }
 );
 
-const isNotEmpty = (value) => {
-  return value !== null && value !== undefined && value !== '';
-}
-
 const handleDeleteUploadFileCache = async () => {
   let result = await requestUtil.post("sys/feedback/deleteUploadFileCache", form.value);
   let data = result.data;
   if (data.code === 200) {
     form.value.picture = "";
+    isUploadPicSuccess.value = false;
+    isConfirmChangePic.value = false;
     ElMessage.success("文件上传缓存删除成功！");
   } else {
     ElMessage.error(data.msg);
@@ -179,17 +180,19 @@ const emits = defineEmits(['update:modelValue', 'initFeedbackList']);
 
 const handleClose = () => {
   emits('update:modelValue', false);
-  if (form.value.id === -1) {
-    if (isNotEmpty(form.value.picture)) {
-      handleDeleteUploadFileCache();
-    }
+  if (isUploadPicSuccess.value && !isConfirmChangePic.value) {
+    handleDeleteUploadFileCache();
   }
+  uploadPicProgress.value = 0;
+  uploadPicStatus.value = "";
 };
 
 const handleConfirmUploadPicture = async () => {
   let result = await requestUtil.post("sys/feedback/updatePicture", form.value);
   let data = result.data;
   if (data.code === 200) {
+    isConfirmChangePic.value = true;
+    emits("initFeedbackList");
     ElMessage.success("执行成功！");
   } else {
     ElMessage.error(data.msg);
@@ -207,6 +210,7 @@ const handleConfirm = () => {
       let result = await requestUtil.post("sys/feedback/save", form.value);
       let data = result.data;
       if (data.code === 200) {
+        isConfirmChangePic.value = true;
         ElMessage.success("执行成功！");
         formRef.value.resetFields();
         emits("initFeedbackList");

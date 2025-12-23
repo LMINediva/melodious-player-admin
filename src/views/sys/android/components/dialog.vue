@@ -3,7 +3,7 @@
       v-bind="dialogVisible"
       :title="dialogTitle"
       width="30%"
-      @close="handleClose">
+      :before-close="handleClose">
     <el-form
         ref="formRef"
         :model="form"
@@ -142,6 +142,10 @@ const uploadIconPicProgress = ref(0);
 const uploadIconPicStatus = ref("");
 const uploadAPKProgress = ref(0);
 const uploadAPKStatus = ref("");
+const isUploadIconPicSuccess = ref(false);
+const isConfirmChangeIconPic = ref(false);
+const isUploadAPKSuccess = ref(false);
+const isConfirmChangeAPK = ref(false);
 
 const handleIconPicProgress = (event, file, fileList) => {
   uploadIconPicProgress.value = event.percent;
@@ -152,6 +156,7 @@ const handleIconPicSuccess = (res) => {
   uploadIconPicStatus.value = "success";
   iconPicUrl.value = getServerUrl() + res.data.src;
   form.value.icon = res.data.title;
+  isUploadIconPicSuccess.value = true;
   setTimeout(() => {
     uploadIconPicProgress.value = 0;
   }, 2000);
@@ -172,6 +177,7 @@ const handleAPKSuccess = (res) => {
   url.value = getServerUrl() + res.data.src;
   apkName.value = res.data.title;
   form.value.url = res.data.title;
+  isUploadAPKSuccess.value = true;
   setTimeout(() => {
     uploadAPKProgress.value = 0;
   }, 2000);
@@ -259,16 +265,16 @@ watch(
     }
 );
 
-const isNotEmpty = (value) => {
-  return value !== null && value !== undefined && value !== '';
-}
-
 const handleDeleteUploadFileCache = async () => {
   let result = await requestUtil.post("sys/android/deleteUploadFileCache", form.value);
   let data = result.data;
   if (data.code === 200) {
     form.value.icon = "";
     form.value.url = "";
+    isUploadIconPicSuccess.value = false;
+    isConfirmChangeIconPic.value = false;
+    isUploadAPKSuccess.value = false;
+    isConfirmChangeAPK.value = false;
     ElMessage.success("文件上传缓存删除成功！");
   } else {
     ElMessage.error(data.msg);
@@ -279,17 +285,22 @@ const emits = defineEmits(['update:modelValue', 'initAndroidApplicationList']);
 
 const handleClose = () => {
   emits('update:modelValue', false);
-  if (form.value.id === -1) {
-    if (form.value.icon !== 'default.png' || isNotEmpty(form.value.url)) {
-      handleDeleteUploadFileCache();
-    }
+  if ((isUploadIconPicSuccess.value && !isConfirmChangeIconPic.value) ||
+      (isUploadAPKSuccess.value && !isConfirmChangeAPK.value)) {
+    handleDeleteUploadFileCache();
   }
+  uploadIconPicProgress.value = 0;
+  uploadIconPicStatus.value = "";
+  uploadAPKProgress.value = 0;
+  uploadAPKStatus.value = "";
 };
 
 const handleConfirmUploadIconPicture = async () => {
   let result = await requestUtil.post("sys/android/updateIconPicture", form.value);
   let data = result.data;
   if (data.code === 200) {
+    isConfirmChangeIconPic.value = true;
+    emits("initAndroidApplicationList");
     ElMessage.success("执行成功！");
   } else {
     ElMessage.error(data.msg);
@@ -300,6 +311,8 @@ const handleConfirmUploadAPK = async () => {
   let result = await requestUtil.post("sys/android/updateAndroidApplication", form.value);
   let data = result.data;
   if (data.code === 200) {
+    isConfirmChangeAPK.value = true;
+    emits("initAndroidApplicationList");
     ElMessage.success("执行成功！");
   } else {
     ElMessage.error(data.msg);
@@ -316,6 +329,8 @@ const handleConfirm = () => {
       let result = await requestUtil.post("sys/android/save", form.value);
       let data = result.data;
       if (data.code === 200) {
+        isConfirmChangeIconPic.value = true;
+        isConfirmChangeAPK.value = true;
         ElMessage.success("执行成功！");
         formRef.value.resetFields();
         emits("initAndroidApplicationList");
