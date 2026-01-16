@@ -43,4 +43,4 @@
 ## 运行说明
 项目启动命令：npm run serve
 项目打包命令：npm run build
-项目打包说明：项目打包好后会在该项目下生成一个 dist 目录，将该目录下的所有文件复制到[**悦听影音后台管理系统后端**](https://gitee.com/lminediva/MelodiousPlayerServer)的src\main\resources\static目录下，然后一起打包成jar包。如需部署至个人服务器并遇到跨域问题，请修改src\util\request.js文件中baseUrl变量的IP和端口号为您个人服务器的IP/域名和端口号。
+项目打包说明：项目打包好后会在该项目下生成一个 dist 目录，将该目录下的所有文件复制到**悦听影音后台管理系统后端**（[**github**](https://github.com/LMINediva/MelodiousPlayerServer) | [**gitee**](https://gitee.com/lminediva/MelodiousPlayerServer)）的src\main\resources\static目录下，然后一起打包成jar包。如需部署至个人服务器并遇到跨域问题，请修改src\util\request.js文件中baseUrl变量的IP和端口号为您个人服务器的IP/域名和端口号。
