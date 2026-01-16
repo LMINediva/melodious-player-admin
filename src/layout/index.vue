@@ -32,7 +32,7 @@ const isCollapse = ref(false);
 
 const initCollapse = (value) => {
   isCollapse.value = value;
-}
+};
 </script>
 
 <style scoped>
