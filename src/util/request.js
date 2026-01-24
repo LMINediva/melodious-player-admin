@@ -1,9 +1,9 @@
 // 引入axios
-import axios, {request} from 'axios';
+import axios from 'axios';
 import store from '@/store';
 import {ElMessageBox} from 'element-plus';
 
-let baseUrl = "http://127.0.0.1:8082/";
+let baseUrl = "http://hk.frpee.top:17116/";
 // 创建axios实例
 const httpService = axios.create({
     // url前缀-'http:xxx.xxx'
@@ -91,10 +91,10 @@ export function post(url, params = {}) {
             method: 'post',
             data: params
         }).then(response => {
-            console.log(response)
+            console.log(response);
             resolve(response);
         }).catch(error => {
-            console.log(error)
+            console.log(error);
             reject(error);
         });
     });

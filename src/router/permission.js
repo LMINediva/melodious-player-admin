@@ -3,7 +3,7 @@ import store from '@/store';
 
 router.beforeEach((to, from, next) => {
     // 白名单
-    const whiteList = ['/login'];
+    const whiteList = ['/login', '/download'];
     let token = store.getters.GET_TOKEN;
     let hasRoutes = store.state.hasRoutes;
     let menuList = store.getters.GET_MENULIST;

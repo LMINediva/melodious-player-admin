@@ -9,7 +9,7 @@ import {useRoute, useRouter} from 'vue-router';
 
 const route = useRoute();
 const router = useRouter();
-const whitePath = ['/login', '/index', '/'];
+const whitePath = ['/login', '/index', '/download', '/'];
 
 watch(route, (to, from) => {
   console.log("to" + to.name);
