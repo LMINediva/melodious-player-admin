@@ -1,4 +1,5 @@
-# Front-end interface of the melodious player backend management system	[中文](README.md)
+# Front-end interface of the melodious player backend management system
+[中文](README.md)
 
 ## Introduction
 This is an open-source software based on the Vue framework, which has functions such as user, role, menu, announcement, feedback, Android application, music, MV and music list management, service monitoring, etc. The infrastructure of this project is sourced from [**java knowledge sharing network**](https://www.java1234.com)The resource file comes from the Internet. This software is mainly used for learning and communication.
