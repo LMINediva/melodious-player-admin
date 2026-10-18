@@ -8,7 +8,7 @@
 - 管理员：java1234/234567
 - 普通用户：test2/23456
 
-演示地址：http://hk.frpee.top:17116
+演示地址：http://site.frpee.top:17116
 
 ## 图片展示
 <table>

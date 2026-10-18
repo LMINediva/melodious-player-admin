@@ -3,7 +3,7 @@ import axios from 'axios';
 import store from '@/store';
 import {ElMessageBox} from 'element-plus';
 
-let baseUrl = "http://hk.frpee.top:17116/";
+let baseUrl = "http://site.frpee.top:17116/";
 // 创建axios实例
 const httpService = axios.create({
     // url前缀-'http:xxx.xxx'

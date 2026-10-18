@@ -8,7 +8,7 @@ This is an open-source software based on the Vue framework, which has functions 
 - Administrator: java1234/234567
 - user: test2/23456
 
-Demo URL: http://hk.frpee.top:17116
+Demo URL: http://site.frpee.top:17116
 
 ## Image display
 <table>
